@@ -589,8 +589,11 @@
             submitBtn.addEventListener('click', submitAction);
         }
 
-        // API Calls
         async function loadTicket() {
+            loadBtn.style.animation = 'none'; // Clear pulse
+            loadBtn.style.backgroundColor = 'transparent';
+            loadBtn.style.borderColor = 'var(--accent-cyan)';
+            loadBtn.style.color = 'var(--accent-cyan)';
             setLoading(loadBtn, '🔄 Loading...');
             clearForm();
             document.getElementById('resultCard').style.display = 'none';
@@ -644,10 +647,12 @@
                 showResult(reward, feedback);
                 addToHistory(currentTicketId, currentDifficulty, reward, payload.classification);
                 
-                // Add a small delay then automatically load the next ticket (to mimic continuous simulation)
-                setTimeout(() => {
-                    loadTicket();
-                }, 2000);
+                // Wait for user to manually load the next ticket so they can read the feedback
+                loadBtn.innerHTML = '🔄 Load Next Ticket';
+                loadBtn.style.backgroundColor = 'rgba(16, 185, 129, 0.2)'; // Highlight it slightly
+                loadBtn.style.borderColor = 'var(--accent-green)';
+                loadBtn.style.color = 'var(--accent-green)';
+                loadBtn.style.animation = 'pulse 1.5s infinite';
 
             } catch (err) {
                 alert('Error submitting action to environment.');
