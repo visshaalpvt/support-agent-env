@@ -1,3 +1,13 @@
+---
+title: SupportAgentEnv
+emoji: 🤖
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+app_file: api.py
+---
+
 # SupportAgentEnv
 
 OpenEnv environment for training AI agents on customer support tasks.
