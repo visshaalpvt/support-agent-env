@@ -1,10 +1,732 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>SupportAgentEnv Interface</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupportAgentEnv - Customer Support AI Training Environment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient-start: #0a0e27;
+            --bg-gradient-end: #1a1a3e;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+            
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Glassmorphism Card Style */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.offline {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Difficulty Selector */
+        .difficulty-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .difficulty-btn {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            padding: 1rem;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .difficulty-btn:hover {
+            background: rgba(30, 41, 59, 0.8);
+            color: var(--text-primary);
+        }
+
+        .difficulty-btn.active {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: var(--accent-purple);
+            color: white;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .difficulty-btn.active::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--accent-purple);
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Elements */
+        h3, h4 {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Ticket Card */
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 0.8rem;
+        }
+
+        .ticket-header span {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+
+        .load-btn {
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .load-btn:hover:not(:disabled) {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+
+        .ticket-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            min-height: 80px;
+        }
+
+        .ticket-id {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        select, textarea {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        select:disabled, textarea:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-purple), #6d28d9);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #334155;
+            color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Score Display */
+        .result-card {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-display {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            background: rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+        }
+
+        .score-value {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .score-max {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .score-high { color: var(--accent-green); text-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        .score-medium { color: var(--accent-orange); text-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+        .score-low { color: var(--accent-red); text-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+
+        .feedback-section pre {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            border-left: 3px solid var(--accent-purple);
+        }
+
+        /* History */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .history-list::-webkit-scrollbar { width: 6px; }
+        .history-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 3px; }
+        .history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            border-left: 3px solid transparent;
+        }
+
+        .history-item.high { border-left-color: var(--accent-green); }
+        .history-item.medium { border-left-color: var(--accent-orange); }
+        .history-item.low { border-left-color: var(--accent-red); }
+
+        .history-empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Spinners & Utilities */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
 </head>
 <body>
-    <h1>SupportAgentEnv Dashboard</h1>
-    <p>Use the API to interact with the environment.</p>
+    <div class="container">
+        <header>
+            <h1>🤖 SupportAgentEnv</h1>
+            <p>OpenEnv Customer Support Training & Evaluation Dashboard</p>
+            <div class="status-badge pulse" id="apiStatus">⏳ Checking API Status...</div>
+        </header>
+
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" data-difficulty="easy">🟢 Easy <br><span style="font-size:0.75rem; font-weight:normal; color:#94a3b8;">Classify Only</span></button>
+            <button class="difficulty-btn" data-difficulty="medium">🟡 Medium <br><span style="font-size:0.75rem; font-weight:normal; color:#94a3b8;">+ Priority</span></button>
+            <button class="difficulty-btn" data-difficulty="hard">🔴 Hard <br><span style="font-size:0.75rem; font-weight:normal; color:#94a3b8;">+ Written Response</span></button>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Column: Input -->
+            <div class="left-column" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Ticket Card -->
+                <div class="card ticket-card">
+                    <div class="ticket-header">
+                        <span>📧 ACTIVE TICKET</span>
+                        <button id="loadTicketBtn" class="load-btn">🔄 Skip / Load Random</button>
+                    </div>
+                    <div class="ticket-content" id="ticketContent">
+                        Loading ticket...
+                    </div>
+                    <div class="ticket-id" id="ticketId">--</div>
+                </div>
+
+                <!-- Action Card -->
+                <div class="card action-card">
+                    <h3>✍️ AGENT ACTION</h3>
+                    
+                    <div class="form-group">
+                        <label>📂 Category <span style="color:var(--accent-red)">*</span></label>
+                        <select id="category">
+                            <option value="">Select Category...</option>
+                            <option value="delivery">Delivery Issue</option>
+                            <option value="billing">Billing Problem</option>
+                            <option value="technical">Technical Bug</option>
+                            <option value="account">Account Access</option>
+                            <option value="general">General Inquiry</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="priorityGroup" style="display: none;">
+                        <label>⚡ Priority <span style="color:var(--accent-red)">*</span></label>
+                        <select id="priority">
+                            <option value="">Select Priority...</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="responseGroup" style="display: none;">
+                        <label>💬 Response <span style="color:var(--accent-red)">*</span></label>
+                        <textarea id="response" rows="4" placeholder="Generate a highly empathetic and helpful response to the customer..."></textarea>
+                    </div>
+
+                    <button id="submitBtn" class="submit-btn" disabled>
+                        <span>📤 Submit Action to Environment</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Results & History -->
+            <div class="right-column" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                
+                <div class="card result-card" id="resultCard" style="display: none;">
+                    <h3>🎯 EVALUATION RESULT</h3>
+                    <div class="score-display" id="scoreDisplay">
+                        <span class="score-label">REWARD</span>
+                        <span class="score-value" id="scoreValue">0.00</span>
+                        <span class="score-max">/ 1.00</span>
+                    </div>
+                    <div class="feedback-section">
+                        <h4>📊 Grader Feedback Breakdown</h4>
+                        <pre id="feedbackText"></pre>
+                    </div>
+                </div>
+
+                <div class="card history-card">
+                    <h4>📜 Live Episode History</h4>
+                    <div id="historyList" class="history-list">
+                        <div class="history-empty" id="historyEmpty">No submissions yet.<br>Load a ticket and submit an action!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin; // Adapts to HF Space URL
+        
+        // Element references
+        const apiStatus = document.getElementById('apiStatus');
+        const diffBtns = document.querySelectorAll('.difficulty-btn');
+        const loadBtn = document.getElementById('loadTicketBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        const priorityGrp = document.getElementById('priorityGroup');
+        const responseGrp = document.getElementById('responseGroup');
+        
+        const catSelect = document.getElementById('category');
+        const priSelect = document.getElementById('priority');
+        const respText = document.getElementById('response');
+        
+        let currentDifficulty = 'easy';
+        let currentTicketId = null;
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkHealth();
+            await loadTicket();
+            setupEventListeners();
+        });
+
+        async function checkHealth() {
+            try {
+                const res = await fetch(`${API_URL}/health`);
+                if (res.ok) {
+                    apiStatus.innerHTML = '🟢 API Connected';
+                    apiStatus.className = 'status-badge';
+                } else {
+                    throw new Error('Bad status');
+                }
+            } catch (e) {
+                apiStatus.innerHTML = '🔴 Backend Disconnected';
+                apiStatus.className = 'status-badge offline';
+            }
+        }
+
+        // UI toggles based on difficulty
+        function updateFormUI(difficulty) {
+            currentDifficulty = difficulty;
+            
+            diffBtns.forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-difficulty="${difficulty}"]`).classList.add('active');
+
+            if (difficulty === 'easy') {
+                priorityGrp.style.display = 'none';
+                responseGrp.style.display = 'none';
+            } else if (difficulty === 'medium') {
+                priorityGrp.style.display = 'block';
+                responseGrp.style.display = 'none';
+            } else if (difficulty === 'hard') {
+                priorityGrp.style.display = 'block';
+                responseGrp.style.display = 'block';
+            }
+            validateForm();
+        }
+
+        // Form Validation
+        function validateForm() {
+            const hasCat = catSelect.value.trim() !== '';
+            const hasPri = priSelect.value.trim() !== '';
+            const hasResp = respText.value.trim() !== '';
+
+            let isValid = false;
+            if (currentDifficulty === 'easy') isValid = hasCat;
+            if (currentDifficulty === 'medium') isValid = hasCat && hasPri;
+            if (currentDifficulty === 'hard') isValid = hasCat && hasPri && hasResp;
+
+            submitBtn.disabled = !isValid || !currentTicketId;
+        }
+
+        function setupEventListeners() {
+            diffBtns.forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    updateFormUI(e.currentTarget.dataset.difficulty);
+                    await loadTicket(); // Reset env on diff change
+                });
+            });
+
+            loadBtn.addEventListener('click', loadTicket);
+            
+            catSelect.addEventListener('change', validateForm);
+            priSelect.addEventListener('change', validateForm);
+            respText.addEventListener('input', validateForm);
+            
+            submitBtn.addEventListener('click', submitAction);
+        }
+
+        // API Calls
+        async function loadTicket() {
+            setLoading(loadBtn, '🔄 Loading...');
+            clearForm();
+            document.getElementById('resultCard').style.display = 'none';
+            submitBtn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/reset`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task_difficulty: currentDifficulty })
+                });
+                
+                if(!res.ok) throw new Error('Failed to load ticket');
+                
+                const data = await res.json();
+                
+                document.getElementById('ticketContent').innerHTML = `"${data.ticket_text}"`;
+                document.getElementById('ticketId').innerText = `ID: ${data.ticket_id}  |  Level: ${currentDifficulty.toUpperCase()}`;
+                currentTicketId = data.ticket_id;
+                
+            } catch (err) {
+                document.getElementById('ticketContent').innerHTML = `<span style="color:var(--accent-red)">Error loading ticket. API might be asleep.</span>`;
+                console.error(err);
+            } finally {
+                removeLoading(loadBtn, '🔄 Skip / Load Random');
+            }
+        }
+
+        async function submitAction() {
+            setLoading(submitBtn, '📤 Processing Environment Action...', true);
+            
+            try {
+                const payload = {
+                    classification: catSelect.value,
+                    priority: priSelect.value,
+                    response: respText.value
+                };
+
+                const res = await fetch(`${API_URL}/step`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if(!res.ok) throw new Error('Submission failed');
+                
+                const data = await res.json();
+                const reward = data.reward?.total || 0;
+                const feedback = data.reward?.breakdown || "No feedback generated.";
+                
+                showResult(reward, feedback);
+                addToHistory(currentTicketId, currentDifficulty, reward, payload.classification);
+                
+                // Add a small delay then automatically load the next ticket (to mimic continuous simulation)
+                setTimeout(() => {
+                    loadTicket();
+                }, 2000);
+
+            } catch (err) {
+                alert('Error submitting action to environment.');
+                console.error(err);
+            } finally {
+                removeLoading(submitBtn, '📤 Submit Action to Environment', true);
+            }
+        }
+
+        // Render functions
+        function showResult(score, feedback) {
+            const card = document.getElementById('resultCard');
+            const scoreVal = document.getElementById('scoreValue');
+            const fbText = document.getElementById('feedbackText');
+            
+            card.style.display = 'block';
+            scoreVal.innerText = score.toFixed(2);
+            fbText.innerText = feedback;
+            
+            // Color coding
+            scoreVal.className = 'score-value'; // reset
+            let tier = 'low';
+            if (score >= 0.7) { scoreVal.classList.add('score-high'); tier = 'high'; }
+            else if (score >= 0.4) { scoreVal.classList.add('score-medium'); tier = 'medium'; }
+            else { scoreVal.classList.add('score-low'); }
+            
+            // Retrigger animation
+            card.style.animation = 'none';
+            card.offsetHeight; /* trigger reflow */
+            card.style.animation = null; 
+        }
+
+        function addToHistory(tId, diff, score, cat) {
+            const list = document.getElementById('historyList');
+            const empty = document.getElementById('historyEmpty');
+            if (empty) empty.style.display = 'none';
+            
+            let tier = 'low';
+            if (score >= 0.7) tier = 'high';
+            else if (score >= 0.4) tier = 'medium';
+
+            const item = document.createElement('div');
+            item.className = `history-item ${tier}`;
+            
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            
+            item.innerHTML = `
+                <div>
+                    <strong>${tId}</strong> <span style="color:var(--text-muted); font-size:0.8rem">(${diff.toUpperCase()})</span>
+                    <br>
+                    <span style="color:var(--text-secondary); font-size:0.75rem">${time} | class: ${cat}</span>
+                </div>
+                <div style="font-family:'Space Mono', monospace; font-size:1.1rem; font-weight:700;">
+                    ${score.toFixed(2)}
+                </div>
+            `;
+            
+            list.insertBefore(item, list.firstChild);
+        }
+
+        function clearForm() {
+            catSelect.value = '';
+            priSelect.value = '';
+            respText.value = '';
+            validateForm();
+        }
+
+        // Utils
+        function setLoading(btn, text, hasSpinner = false) {
+            btn.disabled = true;
+            btn.innerHTML = hasSpinner ? `<div class="spinner"></div> ${text}` : text;
+        }
+
+        function removeLoading(btn, origText, validate = false) {
+            btn.innerHTML = validate ? `<span>${origText}</span>` : origText;
+            if (validate) validateForm();
+            else btn.disabled = false;
+        }
+
+    </script>
 </body>
 </html>
