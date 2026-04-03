@@ -1,0 +1,54 @@
+name: support-agent-env
+version: 1.0.0
+description: Customer support automation environment for training AI agents
+author: visshaalpvt
+license: MIT
+
+tasks:
+  - id: easy
+    name: Classification Only
+    description: Agent must classify the ticket category
+    max_steps: 1
+    difficulty: easy
+    
+  - id: medium
+    name: Classification + Priority
+    description: Agent must classify category and detect priority
+    max_steps: 1
+    difficulty: medium
+    
+  - id: hard
+    name: Full Response
+    description: Agent must classify, prioritize, and write empathetic response
+    max_steps: 1
+    difficulty: hard
+
+actions:
+  classification:
+    type: string
+    required: true
+    enum: ["delivery", "billing", "technical", "account", "general"]
+  priority:
+    type: string
+    required: false
+    enum: ["low", "medium", "high", "urgent"]
+  response:
+    type: string
+    required: false
+
+observations:
+  ticket_id:
+    type: string
+  customer_message:
+    type: string
+  task_difficulty:
+    type: string
+    enum: ["easy", "medium", "hard"]
+  step_number:
+    type: integer
+  done:
+    type: boolean
+
+rewards:
+  range: [0.0, 1.0]
+  partial_credit: true
