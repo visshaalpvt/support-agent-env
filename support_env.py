@@ -2,7 +2,7 @@ import asyncio
 import random
 import json
 from typing import Dict, Any, Optional, List
-from schema import SupportObservation, SupportActionResult, SupportState
+from schema import SupportObservation, SupportActionResult, SupportState, SupportReward
 from graders import get_grader
 
 class SupportAgentEnv:
@@ -96,11 +96,35 @@ class SupportAgentEnv:
             feedback=feedback
         )
         
+        info_dict = {
+            "feedback": feedback,
+            "ground_truth": {
+                "category": ground_truth_category,
+                "priority": ground_truth_priority
+            }
+        }
+        
+        # Determine classification score based on difficulty
+        if self.current_task_difficulty == "easy":
+            c_score = score
+        elif self.current_task_difficulty == "medium":
+            c_score = 0.5 if agent_category == ground_truth_category else 0.0
+        else: # hard
+            c_score = 0.3 if agent_category == ground_truth_category else 0.0
+
+        reward_obj = SupportReward(
+            total=score,
+            breakdown=feedback,
+            classification_score=c_score,
+            priority_score=priority_score,
+            response_score=response_score if self.current_task_difficulty == "hard" else 0.0
+        )
+        
         return SupportActionResult(
             observation=observation,
-            reward=score,
+            reward=reward_obj,
             done=self.done,
-            info={"feedback": feedback}
+            info=info_dict
         )
     
     async def state(self) -> SupportState:

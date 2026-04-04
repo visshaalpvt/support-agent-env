@@ -18,9 +18,16 @@ class SupportObservation(BaseModel):
     info: Optional[Dict[str, Any]] = None
     feedback: str = ""
 
+class SupportReward(BaseModel):
+    total: float
+    breakdown: str
+    classification_score: Optional[float] = 0.0
+    priority_score: Optional[float] = 0.0
+    response_score: Optional[float] = 0.0
+
 class SupportActionResult(BaseModel):
     observation: SupportObservation
-    reward: float
+    reward: SupportReward
     done: bool
     info: Optional[Dict[str, Any]] = None
 

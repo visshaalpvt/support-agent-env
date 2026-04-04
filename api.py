@@ -65,12 +65,12 @@ async def step(request: StepRequest):
             "info": result.info
         },
         "reward": {
-            "total": result.reward,
-            "classification_score": getattr(result, 'classification_score', result.reward if result.reward == 1.0 else 0),
-            "priority_score": getattr(result, 'priority_score', 0),
-            "response_score": getattr(result, 'response_score', 0),
+            "total": result.reward.total,
+            "classification_score": result.reward.classification_score,
+            "priority_score": result.reward.priority_score,
+            "response_score": result.reward.response_score,
             "penalty": 0,
-            "breakdown": result.observation.feedback if hasattr(result.observation, 'feedback') else ""
+            "breakdown": result.reward.breakdown
         },
         "done": result.done
     }

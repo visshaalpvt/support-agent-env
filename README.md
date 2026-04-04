@@ -6,11 +6,16 @@ colorTo: green
 sdk: docker
 pinned: false
 app_file: api.py
+tags:
+  - openenv
 ---
 
 # SupportAgentEnv
 
-OpenEnv environment for training AI agents on customer support tasks.
+**SupportAgentEnv** is a complete, real-world customer support automation environment built on the **OpenEnv** specification. 
+
+### 💡 Motivation
+Most reinforcement learning and agentic frameworks rely on games or synthetic "toy" tasks. **SupportAgentEnv** bridges the gap to industrial AI by simulating the actual workflow of a human customer support specialist: identifying customer needs, determining urgency based on service-level agreements (SLAs), and drafting professional, empathetic communications. This environment provides a verifiable benchmark for assessing an LLM agent's reasoning, classification accuracy, and tone alignment in a business context.
 
 ## Tasks
 - **Easy**: Ticket classification (5 categories)
@@ -63,15 +68,31 @@ The agent submits an action payload bounded by Pydantic parameters:
 
 ---
 
-## Baseline Inference Scores
-These are the verified deterministic execution scores using public Frontier Models:
+## Final Evaluation & Grading Strategy
 
-| Task Tier | Agent/Model | Expected Score Max |
-|-----------|-------------|--------------------|
-| **Easy**  | Static Baseline / Random | ~0.20 (20%) |
-| **Easy**  | Qwen 72B Instruct | 1.00 (100%) |
-| **Medium**| Qwen 72B Instruct | ~0.85 (85%) |
-| **Hard**  | GPT-4o / Qwen 72B | ~0.80 - 0.95 |
+To ensure a high-fidelity assessment of agentic behavior, we implement a **Weighted Partial-Reward Grader** for the 'Hard' tier:
+
+| Metric | Weight | Description |
+| :--- | :--- | :--- |
+| **Category Accuracy** | 30% | Correct classification among 5 labels. |
+| **Priority/SLA** | 30% | Alignment with ticket urgency (partial credit for 1-level offsets). |
+| **Sentiment** | 20% | Detection of empathetic language (Professionalism & Empathy). |
+| **Actionability** | 20% | Presence of resolution paths (Helpfulness & Clarity). |
+
+### 🛠️ Environment Design
+- **Single-Step Episodes**: Minimizes noise from long-horizon trajectories to isolate classification and response generation quality.
+- **Dynamic Action Space**: Supports categorical strings (category/priority) and free-form raw text (responses).
+- **Richer Info Logs**: Returns full ground truth metadata in the `info` object for transparency during training or testing.
+
+## Baseline Inference Scores
+These are verified deterministic execution scores using public Frontier Models:
+
+| Task Tier | Agent/Model | Expected Score | Score Composition |
+|-----------|-------------|----------------|-------------------|
+| **Easy**  | GPT-4o / Qwen 2.5 | 1.00 | 100% Cat |
+| **Medium**| GPT-4o / Qwen 2.5 | ~0.85 | 50% Cat + 35% Prio |
+| **Hard**  | GPT-4o | ~0.90+ | Full multi-metric alignment |
+| **Hard**  | Simple GPT-3.5 | ~0.60 | Misses nuance/empathy |
 
 ---
 

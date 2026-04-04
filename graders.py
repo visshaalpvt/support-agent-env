@@ -38,53 +38,63 @@ def grade_medium(agent_category: str, ground_truth_category: str,
 def grade_hard(agent_category: str, ground_truth_category: str,
                agent_priority: str, ground_truth_priority: str,
                agent_response: str, keywords: List[str]) -> Tuple[float, str, float, float]:
-    """Hard: Category (30%) + Priority (30%) + Response (40%)"""
-    # Category (30%)
+    """
+    Hard: Category (30%) + Priority (30%) + Sentiment (20%) + Actionability (20%)
+    Total Score: 1.0 (Sum of weighted metrics)
+    """
+    # 1. Category Metric (30%)
     category_score = 0.3 if agent_category == ground_truth_category else 0.0
-    
-    # Priority (30%)
+    category_fb = f"category:CORRECT(+0.3)" if category_score > 0 else f"category:WRONG(exp:{ground_truth_category})"
+
+    # 2. Priority Metric (30%) - Partial credit for "near misses"
     priority_ranking = {"urgent": 4, "high": 3, "medium": 2, "low": 1}
-    agent_priority_level = priority_ranking.get(agent_priority, 0)
-    truth_priority_level = priority_ranking.get(ground_truth_priority, 0)
+    agent_p = priority_ranking.get(agent_priority, 0)
+    truth_p = priority_ranking.get(ground_truth_priority, 0)
     
     if agent_priority == ground_truth_priority:
         priority_score = 0.3
-    elif agent_priority_level == truth_priority_level - 1:
+        priority_fb = f"priority:CORRECT(+0.3)"
+    elif abs(agent_p - truth_p) == 1:
         priority_score = 0.15
-    elif agent_priority_level == truth_priority_level + 1:
-        priority_score = 0.1
+        priority_fb = f"priority:NEAR_MISS(+0.15)"
     else:
         priority_score = 0.0
-    
-    # Response (40%)
-    response_score = 0.0
-    apology_found = 0.0
-    keyword_matches = 0.0
-    
-    if agent_response and len(agent_response.strip()) > 5:
-        response_lower = agent_response.lower()
-        apology_words = ["apologize", "sorry", "apologise", "regret", "understand", "frustrating"]
-        
-        for word in apology_words:
-            if word in response_lower:
-                apology_found = 0.2
-                break
-        
-        if keywords:
-            matches = sum(1 for kw in keywords if kw.lower() in response_lower)
-            keyword_matches = min(matches / len(keywords), 0.2)
+        priority_fb = f"priority:WRONG(exp:{ground_truth_priority})"
+
+    # 3. Sentiment & Empathy Metric (20%)
+    sentiment_score = 0.0
+    empathy_keywords = ["sorry", "apologize", "regret", "understand", "frustrating", "apologise"]
+    if agent_response:
+        resp_lower = agent_response.lower()
+        if any(word in resp_lower for word in empathy_keywords):
+            sentiment_score = 0.2
+            sentiment_fb = "sentiment:EMPATHETIC(+0.2)"
         else:
-            keyword_matches = 0.1 if len(response_lower) > 20 else 0.05
-        
-        response_score = apology_found + keyword_matches
-        response_score = min(response_score, 0.4)
+            sentiment_fb = "sentiment:NEUTRAL(+0.0)"
+    else:
+        sentiment_fb = "sentiment:MISSING(+0.0)"
+
+    # 4. Actionability & Resolution Metric (20%)
+    action_score = 0.0
+    resolution_keywords = ["resolve", "help", "investigate", "team", "fix", "update", "process", "soon"]
+    if agent_response:
+        resp_lower = agent_response.lower()
+        match_count = sum(1 for kw in resolution_keywords if kw in resp_lower)
+        if match_count >= 2:
+            action_score = 0.2
+            action_fb = "action:HELPFUL(+0.2)"
+        elif match_count == 1:
+            action_score = 0.1
+            action_fb = "action:PARTIAL(+0.1)"
+        else:
+            action_fb = "action:VAGUE(+0.0)"
+    else:
+        action_fb = "action:MISSING(+0.0)"
+
+    total_score = round(category_score + priority_score + sentiment_score + action_score, 4)
+    feedback = f"[HARD] {category_fb} | {priority_fb} | {sentiment_fb} | {action_fb} | total={total_score}"
     
-    total_score = category_score + priority_score + response_score
-    total_score = min(total_score, 1.0)
-    
-    feedback = f"[HARD] category='{agent_category}' {'CORRECT (+0.3)' if agent_category == ground_truth_category else 'WRONG (+0.0)'} | priority='{agent_priority}' {'CORRECT (+0.3)' if agent_priority == ground_truth_priority else f'WRONG (expected {ground_truth_priority}) (+{priority_score:.1f})'} | response: apology found {apology_found:.1f} | keywords matched {keyword_matches:.1f} (+{response_score:.1f}) | total={total_score:.4f}"
-    
-    return total_score, feedback, priority_score, response_score
+    return total_score, feedback, priority_score, (sentiment_score + action_score)
 
 def get_grader(difficulty: str):
     if difficulty == "easy":
