@@ -682,19 +682,10 @@
                         </div>
                     </div>
 
-                    <button id="submitBtn" class="submit-btn" disabled>
+                    <button id="submitBtn" class="submit-btn">
                         <span>📤 Submit Action to Environment</span>
                     </button>
 
-                    <!-- One-Click Test Suite -->
-                    <div class="test-suite">
-                        <div class="test-suite-label">⚡ ONE-CLICK TEST SUITE</div>
-                        <button class="btn btn-success tooltip" id="testPerfect" data-tip="Correct category + priority + good response">🟢 Perfect</button>
-                        <button class="btn btn-warning tooltip" id="testWrongCat" data-tip="Wrong category, correct priority + response">🟡 Wrong Cat</button>
-                        <button class="btn btn-warning tooltip" id="testWrongPri" data-tip="Correct category, wrong priority, good response">🟠 Wrong Pri</button>
-                        <button class="btn btn-danger tooltip" id="testBadResp" data-tip="Correct category + priority, terrible response">🔴 Bad Resp</button>
-                        <button class="btn btn-secondary tooltip" id="testEmpty" data-tip="Empty category, priority, and response">⚪ Empty</button>
-                    </div>
                 </div>
             </div>
 
@@ -912,7 +903,12 @@
             if (currentDifficulty === 'medium') valid = hasCat && hasPri;
             if (currentDifficulty === 'hard')   valid = hasCat && hasPri && hasResp;
 
-            submitBtn.disabled = !valid || !currentTicketId;
+            if (!valid || !currentTicketId) {
+                submitBtn.style.opacity = '0.5';
+            } else {
+                submitBtn.style.opacity = '1';
+                submitBtn.disabled = false;
+            }
         }
 
         function updateAISuggestion() {
@@ -997,6 +993,24 @@
         }
 
         async function submitAction() {
+            const hasCat  = catSelect.value.trim() !== '';
+            const hasPri  = priSelect.value.trim() !== '';
+            const hasResp = respText.value.trim() !== '';
+
+            let valid = false;
+            if (currentDifficulty === 'easy')   valid = hasCat;
+            if (currentDifficulty === 'medium') valid = hasCat && hasPri;
+            if (currentDifficulty === 'hard')   valid = hasCat && hasPri && hasResp;
+
+            if (!valid) {
+                 alert("Please complete all required fields for the current difficulty before submitting.");
+                 return;
+            }
+            if (!currentTicketId) {
+                 alert("Please load a ticket first.");
+                 return;
+            }
+
             setLoading(submitBtn, '📤 Processing...', true);
 
             try {
@@ -1108,97 +1122,6 @@
             list.insertBefore(item, list.firstChild);
         }
 
-        // ==========================================================
-        // ONE-CLICK TEST SUITE
-        // ==========================================================
-        async function runTest(type) {
-            // Ensure we have a ticket
-            if (!currentTicketText) await loadTicket();
-            if (!currentTicketText) return; // failed to load
-
-            const correctCat = detectCategory(currentTicketText);
-            const correctPri = detectPriority(currentTicketText);
-
-            // Override difficulty to hard for full scoring visibility
-            const prevDiff = currentDifficulty;
-            updateFormUI('hard');
-
-            switch (type) {
-                case 'perfect':
-                    catSelect.value = correctCat;
-                    priSelect.value = correctPri;
-                    generateGoodResponse();
-                    break;
-
-                case 'wrongCat':
-                    const wrongCats = ['delivery','billing','technical','account','general'].filter(c => c !== correctCat);
-                    catSelect.value = wrongCats[Math.floor(Math.random() * wrongCats.length)];
-                    priSelect.value = correctPri;
-                    generateGoodResponse();
-                    break;
-
-                case 'wrongPri':
-                    catSelect.value = correctCat;
-                    const wrongPris = ['low','medium','high','urgent'].filter(p => p !== correctPri);
-                    priSelect.value = wrongPris[Math.floor(Math.random() * wrongPris.length)];
-                    generateGoodResponse();
-                    break;
-
-                case 'badResp':
-                    catSelect.value = correctCat;
-                    priSelect.value = correctPri;
-                    generateWrongResponse();
-                    break;
-
-                case 'empty':
-                    catSelect.value = '';
-                    priSelect.value = '';
-                    respText.value = '';
-                    updateQuality();
-                    // For empty test we need to bypass validation
-                    submitBtn.disabled = false;
-                    break;
-            }
-
-            validateForm();
-            // Small delay so user can see what was set
-            await new Promise(r => setTimeout(r, 300));
-
-            if (!submitBtn.disabled) {
-                await submitAction();
-            } else if (type === 'empty') {
-                // Force submit with empty payload for empty test
-                try {
-                    setLoading(submitBtn, '📤 Processing...', true);
-                    const res = await fetch(`${API_URL}/step`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ classification: '', priority: '', response: '' })
-                    });
-                    if (!res.ok) throw new Error('Submission failed');
-                    const data = await res.json();
-                    const reward = data.reward?.total || 0;
-                    const feedback = data.reward?.breakdown || 'No feedback generated.';
-                    showResult(reward, feedback,
-                        data.reward?.classification_score ?? '-',
-                        data.reward?.priority_score ?? '-',
-                        data.reward?.response_score ?? '-');
-                    addToHistory(currentTicketId, currentDifficulty, reward, '(empty)');
-                    allScores.push(reward);
-                    updateStats();
-                    loadBtn.innerHTML = '🔄 Load Next Ticket';
-                    loadBtn.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
-                    loadBtn.style.borderColor = 'var(--accent-green)';
-                    loadBtn.style.color = 'var(--accent-green)';
-                    loadBtn.style.animation = 'pulse 1.5s infinite';
-                } catch (err) {
-                    alert('Error submitting action to environment.');
-                    console.error(err);
-                } finally {
-                    removeLoading(submitBtn, '📤 Submit Action to Environment', true);
-                }
-            }
-        }
 
         // ==========================================================
         // UTILS
@@ -1264,13 +1187,6 @@
                 priSelect.value = pri;
                 validateForm();
             });
-
-            // Test suite
-            document.getElementById('testPerfect').addEventListener('click',  () => runTest('perfect'));
-            document.getElementById('testWrongCat').addEventListener('click', () => runTest('wrongCat'));
-            document.getElementById('testWrongPri').addEventListener('click', () => runTest('wrongPri'));
-            document.getElementById('testBadResp').addEventListener('click',  () => runTest('badResp'));
-            document.getElementById('testEmpty').addEventListener('click',    () => runTest('empty'));
         });
     </script>
 </body>
