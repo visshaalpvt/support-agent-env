@@ -867,17 +867,30 @@
         function generateGoodResponse() {
             if (!currentTicketText) { alert('Load a ticket first!'); return; }
             const cat = detectCategory(currentTicketText);
+            const pri = detectPriority(currentTicketText);
+            
+            // Auto-select category and priority if empty
+            if (catSelect.value === '') catSelect.value = cat;
+            if (priSelect.value === '') priSelect.value = pri;
+
             const pool = goodResponses[cat] || goodResponses.general;
             respText.value = pool[Math.floor(Math.random() * pool.length)];
             updateQuality();
+            validateForm();
         }
 
         function generateWrongResponse() {
             if (!currentTicketText) { alert('Load a ticket first!'); return; }
+            
+            // Auto-select category and priority if empty
+            if (catSelect.value === '') catSelect.value = detectCategory(currentTicketText);
+            if (priSelect.value === '') priSelect.value = detectPriority(currentTicketText);
+
             const types = Object.values(wrongResponses);
             const pool = types[Math.floor(Math.random() * types.length)];
             respText.value = pool[Math.floor(Math.random() * pool.length)];
             updateQuality();
+            validateForm();
         }
 
         // ==========================================================
@@ -903,11 +916,11 @@
             if (currentDifficulty === 'medium') valid = hasCat && hasPri;
             if (currentDifficulty === 'hard')   valid = hasCat && hasPri && hasResp;
 
+            submitBtn.disabled = false;
             if (!valid || !currentTicketId) {
                 submitBtn.style.opacity = '0.5';
             } else {
                 submitBtn.style.opacity = '1';
-                submitBtn.disabled = false;
             }
         }
 
@@ -965,7 +978,7 @@
             setLoading(loadBtn, '🔄 Loading...');
             clearForm();
             document.getElementById('resultCard').style.display = 'none';
-            submitBtn.disabled = true;
+            validateForm();
 
             try {
                 const res = await fetch(`${API_URL}/reset`, {
