@@ -42,8 +42,10 @@ async def health():
     return {"status": "ok", "tickets_loaded": len(env.tickets)}
 
 @app.post("/reset")
-async def reset(request: ResetRequest):
+async def reset(request: Optional[ResetRequest] = None):
     """Reset environment and get initial observation"""
+    if request is None:
+        request = ResetRequest()
     obs = await env.reset(task_difficulty=request.task_difficulty)
     return {
         "ticket_id": obs.ticket_id,
