@@ -1,7 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import json
@@ -11,7 +10,9 @@ from schema import SupportAction, SupportObservation
 
 app = FastAPI(title="SupportAgentEnv", description="Customer Support Environment for OpenEnv")
 
-# Add CORS middleware
+# ============================================
+# CORS MIDDLEWARE (FIXES CROSS-ORIGIN ISSUES)
+# ============================================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,20 +34,28 @@ class StepRequest(BaseModel):
 @app.get("/")
 async def root():
     """Serve the frontend UI"""
-    with open("templates/index.html", "r") as f:
-        return HTMLResponse(content=f.read())
+    try:
+        with open("templates/index.html", "r") as f:
+            return HTMLResponse(content=f.read())
+    except FileNotFoundError:
+        return HTMLResponse(content="<h1>SupportAgentEnv</h1><p>API is running. Use /docs for API documentation.</p>")
 
 @app.get("/health")
 async def health():
     """Health check endpoint"""
     return {"status": "ok", "tickets_loaded": len(env.tickets)}
 
+# ============================================
+# FIXED /reset ENDPOINT - Accepts empty body {}
+# ============================================
 @app.post("/reset")
-async def reset(request: Optional[ResetRequest] = None):
-    """Reset environment and get initial observation"""
-    if request is None:
-        request = ResetRequest()
-    obs = await env.reset(task_difficulty=request.task_difficulty)
+async def reset(body: Dict[str, Any] = Body(default={})):
+    """
+    Reset environment. Accepts empty body {} or body with task_difficulty.
+    Defaults to "easy" if not specified.
+    """
+    difficulty = body.get("task_difficulty", "easy")
+    obs = await env.reset(task_difficulty=difficulty)
     return {
         "ticket_id": obs.ticket_id,
         "ticket_text": obs.customer_message,
