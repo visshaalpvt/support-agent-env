@@ -4,6 +4,14 @@ description: Customer support automation environment for training AI agents
 author: visshaalpvt
 license: MIT
 
+server:
+  port: 7860
+  host: 0.0.0.0
+
+inference:
+  script: inference.py
+  entrypoint: "python inference.py"
+
 tasks:
   - id: easy
     name: Classification Only

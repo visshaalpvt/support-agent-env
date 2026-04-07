@@ -15,10 +15,12 @@ dependencies = [
     "python-multipart>=0.0.6",
     "openai>=1.6.1",
     "aiohttp>=3.9.0",
+    "openenv-core>=0.2.0",
 ]
 
 [project.scripts]
 server = "server.app:main"
+participant = "inference:main"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
