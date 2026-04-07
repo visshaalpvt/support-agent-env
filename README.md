@@ -105,9 +105,14 @@ cd support-agent-env
 pip install -r requirements.txt
 ```
 
-**2. Test Execution Sandbox**
-Run the inference script to boot a complete mock-evaluation loop.
+**2. Run the Demo (requires LLM proxy env vars)**
 ```bash
-export OPENAI_API_KEY="sk-..."
+export API_BASE_URL="<your-proxy-url>"
+export API_KEY="<your-api-key>"
+export MODEL_NAME="gpt-4.1-mini"
 python inference.py
 ```
+
+> **Note:** The inference script requires `API_BASE_URL` and `API_KEY` environment variables.
+> During hackathon evaluation, these are injected automatically by the judges' infrastructure.
+
