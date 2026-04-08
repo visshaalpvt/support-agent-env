@@ -39,18 +39,18 @@ class ValidatorTestSuite:
     # TEST 1: Clip Score Function
     # =========================================================
     def test_clip_score_function(self):
-        """Verify clip_score correctly clamps to (0.011, 0.99)"""
+        """Verify clip_score correctly clamps to (0.01, 0.99)"""
         def clip_score(x):
             try:
                 val = float(x)
-                if math.isnan(val): return 0.011
-                return max(0.011, min(0.99, val))
+                if math.isnan(val): return 0.01
+                return max(0.01, min(0.99, val))
             except:
-                return 0.011
+                return 0.01
         
         test_cases = [
-            (-100, 0.011), (-1, 0.011), (0, 0.011), (0.5, 0.5),
-            (1, 0.99), (2, 0.99), (100, 0.99), (float('nan'), 0.011)
+            (-100, 0.01), (-1, 0.01), (0, 0.01), (0.5, 0.5),
+            (1, 0.99), (2, 0.99), (100, 0.99), (float('nan'), 0.01)
         ]
         
         for value, expected in test_cases:

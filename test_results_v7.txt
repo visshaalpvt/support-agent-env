@@ -1,0 +1,28 @@
+LOADING DEFINITIVE GRADER - STRICT (0.01, 0.99)
+
+======================================================================
+  VALIDATOR FIX TEST SUITE
+======================================================================
+  [PASS]: Clip Score Function
+  [FAIL]: No Binary Returns
+        safe_grader.py:63 -> pri_raw = 0.0
+        safe_grader.py:99 -> pri_raw = 0.0
+        safe_grader.py:102 -> resp_raw = 0.0
+  [PASS]: No safe_grader Import
+  [PASS]: clip_score Defined
+  [PASS]: API_BASE_URL
+  [PASS]: [END] Format
+  [PASS]: Grader Ranges
+  [FAIL]: No Binary Scores in Grader
+        safe_grader.py:63 -> pri_raw = 0.0
+        safe_grader.py:99 -> pri_raw = 0.0
+        safe_grader.py:102 -> resp_raw = 0.0
+  [PASS]: Exception Handlers
+  [PASS]: Score Aggregation
+
+======================================================================
+  TEST SUMMARY
+======================================================================
+
+  Passed: 8
+  Failed: 2
