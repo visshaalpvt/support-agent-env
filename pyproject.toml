@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "support-agent"
+version = "1.0.0"
+description = "Meta Hackathon Support Agent"
+requires-python = ">=3.9"
+dependencies = [
+    "aiohttp",
+    "openai",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tasks*"]
