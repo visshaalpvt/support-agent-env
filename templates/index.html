@@ -405,7 +405,7 @@
                 });
                 currentTicket = await res.json();
                 document.getElementById('ticketText').innerHTML = `"${currentTicket.ticket_text}"`;
-                document.getElementById('ticketId').innerHTML = `Ticket ID: ${currentTicket.ticket_id} | Level: ${currentTicket.task_level}`;
+                document.getElementById('ticketId').innerHTML = `Ticket ID: ${currentTicket.ticket_id} | Level: ${currentTicket.task_difficulty}`;
                 document.getElementById('category').value = '';
                 document.getElementById('priority').value = '';
                 document.getElementById('response').value = '';

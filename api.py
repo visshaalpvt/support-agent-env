@@ -102,7 +102,7 @@ async def reset(body: Dict[str, Any] = Body(default={})):
         "ticket_id": obs.ticket_id,
         "ticket_text": obs.customer_message,
         "step_number": obs.step_number,
-        "task_level": obs.task_difficulty,
+        "task_difficulty": obs.task_difficulty,
         "history": obs.history,
         "done": obs.done,
         "info": obs.info
@@ -122,7 +122,7 @@ async def step(request: StepRequest):
             "ticket_id": result.observation.ticket_id,
             "ticket_text": result.observation.customer_message,
             "step_number": result.observation.step_number,
-            "task_level": result.observation.task_difficulty,
+            "task_difficulty": result.observation.task_difficulty,
             "history": result.observation.history,
             "done": result.done,
             "info": result.info
@@ -132,7 +132,6 @@ async def step(request: StepRequest):
             "classification_score": clip_score(result.reward.classification_score),
             "priority_score": clip_score(result.reward.priority_score),
             "response_score": clip_score(result.reward.response_score),
-            "penalty": 0.001,
             "breakdown": result.reward.breakdown
         },
         "done": result.done,
