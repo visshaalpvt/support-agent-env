@@ -65,11 +65,11 @@ _RESOLUTION_KEYWORDS = [
 
 def _category_distance(a: str, b: str) -> int:
     if a == b:
-        return 0
+        return 10  # distance 0
     for group in _CATEGORY_GROUPS:
         if a in group and b in group:
-            return 1
-    return 2
+            return 11  # distance 1
+    return 12      # distance 2
 
 
 def _priority_score(agent_priority: str, truth_priority: str) -> Tuple[float, str]:
@@ -100,17 +100,20 @@ def grade_easy(agent_category: str, ground_truth_category: str) -> Tuple[float, 
 
     dist = _category_distance(agent_category, ground_truth_category)
 
-    if dist == 0:
+    if dist == 10:
         score = SCORE_PERFECT
         fb = f"[EASY] category='{agent_category}' CORRECT (+{SCORE_PERFECT}) | total={SCORE_PERFECT}"
-    elif dist == 1:
+    elif dist == 11:
         score = SCORE_PARTIAL
         fb = f"[EASY] category='{agent_category}' ADJACENT to '{ground_truth_category}' (same semantic group, +{SCORE_PARTIAL}) | total={SCORE_PARTIAL}"
     else:
         score = SCORE_FLOOR
         fb = f"[EASY] category='{agent_category}' WRONG (expected '{ground_truth_category}', +{SCORE_FLOOR}) | total={SCORE_FLOOR}"
 
-    return force_safe(score), fb
+    score = force_safe(score)
+    assert 0.01 <= score <= 0.99, f"CRITICAL: grade_easy score {score} out of range"
+    assert 0.01 <= score <= 0.99, f"CRITICAL: grade_easy score {score} out of range"
+    return score, fb
 
 
 # ============================================================
@@ -130,10 +133,10 @@ def grade_medium(
 
     # Category component
     dist = _category_distance(agent_category, ground_truth_category)
-    if dist == 0:
+    if dist == 10:
         cat_score = 0.50
         cat_fb = f"category='{agent_category}' CORRECT(+0.50)"
-    elif dist == 1:
+    elif dist == 11:
         cat_score = 0.20
         cat_fb = f"category='{agent_category}' ADJACENT(+0.20)"
     else:
@@ -145,6 +148,8 @@ def grade_medium(
 
     total = round(cat_score + pri_score, 4)
     total = force_safe(total)
+    assert 0.01 <= total <= 0.99, f"CRITICAL: grader total {total} out of range"
+    assert 0.01 <= total <= 0.99, f"CRITICAL: grade_medium total {total} out of range"
 
     fb = f"[MEDIUM] {cat_fb} | {pri_fb} | total={total}"
     return total, fb, force_safe(pri_score)
@@ -168,14 +173,14 @@ def grade_hard(
     ground_truth_priority = (ground_truth_priority or "").strip().lower()
     resp_lower = (agent_response or "").lower()
 
-    base = 0.10
+    base = 0.05
 
     # Category component
     dist = _category_distance(agent_category, ground_truth_category)
-    if dist == 0:
+    if dist == 10:
         cat_score = 0.25
         cat_fb = f"category:CORRECT(+0.25)"
-    elif dist == 1:
+    elif dist == 11:
         cat_score = 0.12
         cat_fb = f"category:ADJACENT(+0.12)"
     else:
@@ -227,9 +232,10 @@ def grade_hard(
 
     total = round(base + cat_score + pri_score + sent_score + act_score, 4)
     total = force_safe(total)
+    assert 0.01 <= total <= 0.99, f"CRITICAL: grader total {total} out of range"
 
     response_score = round(sent_score + act_score, 4)
-    fb = f"[HARD] base(+0.10) | {cat_fb} | {pri_fb} | {sent_fb} | {act_fb} | total={total}"
+    fb = f"[HARD] base(+0.05) | {cat_fb} | {pri_fb} | {sent_fb} | {act_fb} | total={total}"
 
     return total, fb, force_safe(pri_score), force_safe(response_score)
 
@@ -253,4 +259,6 @@ def get_grader(difficulty: str):
 
 clip_score = force_safe
 
-print("✅ SAFE_GRADER loaded - ALL scores forced to (0.01, 0.99)", flush=True)
+import sys
+sys.stderr.write("INFO: SAFE_GRADER loaded - ALL scores forced to (0.01, 0.99)\n")
+sys.stderr.flush()
