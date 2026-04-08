@@ -7,22 +7,15 @@ print("=" * 50)
 test_cases = [
     (0.0,    0,  5, "zero steps (edge)"),
     (0.0,    0,  0, "zero sensors (edge)"),
-    (0.0,   20,  3, "easy - zero reward"),
-    (120.0, 20,  3, "easy - max reward"),
-    (-120.0,20,  3, "easy - min reward"),
-    (0.0,   40,  4, "medium - zero reward"),
-    (320.0, 40,  4, "medium - max reward"),
-    (-320.0,40,  4, "medium - min reward"),
-    (0.0,   60,  5, "hard - zero reward"),
-    (600.0, 60,  5, "hard - max reward"),
-    (-600.0,60,  5, "hard - min reward"),
-    (999.0, 60,  5, "hard - overflow reward"),
-    (-999.0,60,  5, "hard - underflow reward"),
+    (0.5,   20,  3, "easy - mid reward"),
+    (1.1,   20,  3, "easy - overflow"),
+    (-0.1,  20,  3, "easy - underflow"),
 ]
 
 all_passed = True
 for total_reward, steps, num_sensors, label in test_cases:
     score = grade_episode(total_reward, steps, num_sensors)
+    # Check if strictly within (0, 1) and in our new range
     in_range = 0.0 < score < 1.0
     status = "PASS" if in_range else "FAIL"
     if not in_range:

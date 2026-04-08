@@ -7,6 +7,7 @@ from typing import Optional, Dict, Any
 import json
 import random
 from support_env import SupportAgentEnv
+from tasks.grader import clip_score
 from schema import SupportAction, SupportObservation
 
 app = FastAPI(title="SupportAgentEnv", description="Customer Support Environment for OpenEnv")
@@ -127,11 +128,11 @@ async def step(request: StepRequest):
             "info": result.info
         },
         "reward": {
-            "total": result.reward.total,
-            "classification_score": result.reward.classification_score,
-            "priority_score": result.reward.priority_score,
-            "response_score": result.reward.response_score,
-            "penalty": 0.01,
+            "total": clip_score(result.reward.total),
+            "classification_score": clip_score(result.reward.classification_score),
+            "priority_score": clip_score(result.reward.priority_score),
+            "response_score": clip_score(result.reward.response_score),
+            "penalty": 0.001,
             "breakdown": result.reward.breakdown
         },
         "done": result.done,

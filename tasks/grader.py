@@ -8,18 +8,18 @@ def clip_score(score):
     try:
         val = float(score)
     except Exception:
-        return 0.01
+        return 0.001
 
     if math.isnan(val):
-        return 0.01
+        return 0.001
     if math.isinf(val):
-        return 0.99 if val > 0 else 0.01
+        return 0.999 if val > 0 else 0.001
 
-    # Strictly clamp to (0.01, 0.99)
-    if val <= 0.01:
-        return 0.01
-    if val >= 0.99:
-        return 0.99
+    # Strictly clamp to (0.001, 0.999)
+    if val <= 0.001:
+        return 0.001
+    if val >= 0.999:
+        return 0.999
     return round(val, 6)
 
 # Alias
@@ -31,31 +31,16 @@ clamp_score = clip_score
 def grade_episode(total_reward, steps, num_sensors):
     """
     Universal entry point called by Meta validator.
-    Maps (total_reward, steps, num_sensors) → score in (0.01, 0.99)
+    Maps total_reward (cumulative) → final score in (0.001, 0.999).
+    Since our environment returns normalized rewards (0-1) per step,
+    and all tasks are 1 step, we just return the clipped reward.
     """
-    if steps <= 0 or num_sensors <= 0:
-        return 0.01  # safe default for edge cases
+    if steps <= 0:
+        return 0.001  # safe default for edge cases
 
-    # Normalize reward based on difficulty tier
-    if num_sensors <= 3:        # easy tier
-        max_reward = 120.0
-        min_reward = -120.0
-    elif num_sensors == 4:      # medium tier
-        max_reward = 320.0
-        min_reward = -320.0
-    else:                       # hard tier (5+)
-        max_reward = 600.0
-        min_reward = -600.0
-
-    reward_range = max_reward - min_reward
-    if reward_range == 0:
-        return 0.5
-
-    # Normalize to (0, 1)
-    normalized = (total_reward - min_reward) / reward_range
-
-    # Clamp strictly to (0.01, 0.99)
-    return clip_score(normalized)
+    # In our multi-task env, total_reward is already the normalized score (0.001 to 0.999)
+    # for a single-step episode.
+    return clip_score(total_reward)
 
 # ============================================
 # EASY GRADER

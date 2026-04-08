@@ -15,7 +15,7 @@ import random
 import json
 from typing import Dict, Any, Optional, List
 from schema import SupportObservation, SupportActionResult, SupportState, SupportReward
-from tasks.grader import get_grader
+from tasks.grader import get_grader, clip_score
 
 
 class SupportAgentEnv:
@@ -115,23 +115,12 @@ class SupportAgentEnv:
             feedback=feedback,
         )
 
-        # REDUNDANT CLAMP for safety - Consistency with 0.01/0.99
-        def safe_clamp(x):
-            try:
-                val = float(x)
-            except Exception:
-                return 0.01
-            if val <= 0.0:
-                return 0.01
-            if val >= 1.0:
-                return 0.99
-            return val
-
+        # REDUNDANT CLAMP for safety - Consistency with 0.001/0.999
         # CLIP EVERY SCORE FIELD individually
-        score = safe_clamp(score)
-        c_score = safe_clamp(c_score)
-        p_score = safe_clamp(p_score)
-        r_score = safe_clamp(r_score)
+        score = clip_score(score)
+        c_score = clip_score(c_score)
+        p_score = clip_score(p_score)
+        r_score = clip_score(r_score)
 
         reward_obj = SupportReward(
             total=score,
