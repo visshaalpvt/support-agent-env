@@ -73,22 +73,17 @@ class SupportAgentEnv:
         # Grade using the appropriate grader
         grader = get_grader(self.current_task_difficulty)
 
-        priority_score = 0.01
-        response_score = 0.01
-
         if self.current_task_difficulty == "easy":
-            score, feedback = grader(agent_category, ground_truth_category)
-
+            score, feedback, c_score, p_score, r_score = grader(agent_category, ground_truth_category)
         elif self.current_task_difficulty == "medium":
-            score, feedback, priority_score = grader(
+            score, feedback, c_score, p_score, r_score = grader(
                 agent_category,
                 ground_truth_category,
                 agent_priority,
                 ground_truth_priority,
             )
-
         else:  # hard
-            score, feedback, priority_score, response_score = grader(
+            score, feedback, c_score, p_score, r_score = grader(
                 agent_category,
                 ground_truth_category,
                 agent_priority,
@@ -100,7 +95,7 @@ class SupportAgentEnv:
         self.last_reward = score
         self.done = True
 
-        # Record action in history
+        # ... history logic ...
         preview = agent_response[:50] + "..." if len(agent_response) > 50 else agent_response
         self.history.append(
             f"classified={agent_category} | priority={agent_priority} | response=\"{preview}\""
@@ -134,16 +129,16 @@ class SupportAgentEnv:
 
         # CLIP EVERY SCORE FIELD individually
         score = safe_clamp(score)
-        c_score = safe_clamp(0.5) # Generic fallback or calculated
-        priority_score = safe_clamp(priority_score)
-        response_score = safe_clamp(response_score)
+        c_score = safe_clamp(c_score)
+        p_score = safe_clamp(p_score)
+        r_score = safe_clamp(r_score)
 
         reward_obj = SupportReward(
             total=score,
             breakdown=feedback,
             classification_score=c_score,
-            priority_score=priority_score,
-            response_score=response_score,
+            priority_score=p_score,
+            response_score=r_score,
         )
 
         return SupportActionResult(

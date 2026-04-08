@@ -174,8 +174,13 @@ class ValidatorTestSuite:
         try:
             from safe_grader import grade_easy, grade_hard
             # Check edge cases
-            s1 = grade_easy("wrong", "billing")[0]
-            s2 = grade_hard("x","y","low","urgent","sorry",[])[0]
+            # New signature: (total, fb, cat, pri, res)
+            res_easy = grade_easy("wrong", "billing")
+            s1 = res_easy[0]
+            
+            res_hard = grade_hard("x","y","low","urgent","sorry",[])
+            s2 = res_hard[0]
+            
             if 0.01 <= s1 <= 0.99 and 0.01 <= s2 <= 0.99:
                 self.print_test("Grader Ranges", True)
                 return True
