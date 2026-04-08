@@ -1,0 +1,38 @@
+LOADING SAFE_GRADER v4 - FORCED SCORES 0.01 to 0.99
+
+======================================================================
+  VALIDATOR FIX TEST SUITE
+======================================================================
+
+Running 10 comprehensive tests...
+  [PASS]: Clip Score Function
+  [FAIL]: No Binary Returns
+        
+        inference.py:270 - assignment of 0 or 1 -> step_count: int = 0
+        inference.py:346 - assignment of 0 or 1 -> step_count  = 1
+        support_env.py:28 - assignment of 0 or 1 -> self.step_count = 0
+  [PASS]: No safe_grader Import
+  [PASS]: clip_score Defined
+  [PASS]: API_BASE_URL
+  [PASS]: [END] Format
+  [PASS]: Grader Ranges
+  [PASS]: No Binary Scores in Grader
+  [PASS]: Exception Handlers
+  [PASS]: Score Aggregation
+
+======================================================================
+  TEST SUMMARY
+======================================================================
+
+  Passed: 9
+  Failed: 1
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Downloads\metahack\support-agent-env\run_all_tests.py", line 290, in <module>
+    sys.exit(suite.run_all())
+             ^^^^^^^^^^^^^^^
+  File "C:\Users\LENOVO\Downloads\metahack\support-agent-env\run_all_tests.py", line 285, in run_all
+    print("\n  \u274c SOME TESTS FAILED! Fix the issues above.")
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 4: character maps to <undefined>

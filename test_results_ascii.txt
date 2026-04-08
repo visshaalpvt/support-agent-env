@@ -1,0 +1,35 @@
+LOADING SAFE_GRADER v4 - FORCED SCORES 0.01 to 0.99
+
+======================================================================
+  VALIDATOR FIX TEST SUITE
+======================================================================
+
+Running 10 comprehensive tests...
+  [FAIL]: Clip Score Function
+        Failed for nan: got 0.99, expected 0.011
+  [FAIL]: No Binary Returns
+        
+        support_env.py:127 - ternary 0/1 -> c_score = 0.95 if self.current_task_difficulty == "easy" else (0.51 if self.current_task_difficulty == "medium" else 0.25)
+        support_env.py:129 - ternary 0/1 -> c_score = 0.45 if self.current_task_difficulty == "easy" else (0.21 if self.current_task_difficulty == "medium" else 0.12)
+        support_env.py:131 - ternary 0/1 -> c_score = 0.151 if self.current_task_difficulty == "easy" else (0.051 if self.current_task_difficulty == "medium" else 0.01)
+  [PASS]: No safe_grader Import
+  [PASS]: clip_score Defined
+  [PASS]: API_BASE_URL
+  [PASS]: [END] Format
+  [PASS]: Grader Ranges
+  [FAIL]: No Binary Scores in Grader
+        safe_grader.py:88 -> if diff == 0:
+        safe_grader.py:90 -> elif diff == 1:
+        safe_grader.py:199 -> elif abs(ap - tp) == 0:
+  [PASS]: Exception Handlers
+  [PASS]: Score Aggregation
+
+======================================================================
+  TEST SUMMARY
+======================================================================
+
+  Passed: 7
+  Failed: 3
+  Total:  10
+
+  SOME TESTS FAILED! Fix the issues above before submitting.

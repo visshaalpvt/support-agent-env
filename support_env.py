@@ -124,11 +124,11 @@ class SupportAgentEnv:
         from safe_grader import _category_distance, clip_score
         dist = _category_distance(agent_category, ground_truth_category)
         if dist == 10:
-            c_score = 0.95 if self.current_task_difficulty == "easy" else (0.51 if self.current_task_difficulty == "medium" else 0.25)
+            c_score = 0.95 if self.current_task_difficulty == "easy" else (0.51 if self.current_task_difficulty == "medium" else 0.251)
         elif dist == 11:
-            c_score = 0.45 if self.current_task_difficulty == "easy" else (0.21 if self.current_task_difficulty == "medium" else 0.12)
+            c_score = 0.45 if self.current_task_difficulty == "easy" else (0.21 if self.current_task_difficulty == "medium" else 0.121)
         else:
-            c_score = 0.151 if self.current_task_difficulty == "easy" else (0.051 if self.current_task_difficulty == "medium" else 0.01)
+            c_score = 0.151 if self.current_task_difficulty == "easy" else (0.051 if self.current_task_difficulty == "medium" else 0.011)
 
         # CLIP EVERY SCORE — Phase 2 checks ALL score fields, not just total
         score = clip_score(score)
