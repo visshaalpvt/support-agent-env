@@ -1,26 +1,23 @@
-FROM python:3.10-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
-# Upgrade pip first for better reliability
-RUN pip install --upgrade pip
+# Minimal requirements - only what's absolutely necessary
+RUN pip install fastapi uvicorn pydantic python-multipart
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Copy only essential files
+COPY api.py .
+COPY support_env.py .
+COPY graders.py .
+COPY schema.py .
+COPY tickets.json .
+COPY openenv.yaml .
+COPY templates ./templates
 
-# Install with retry logic
-RUN pip install --no-cache-dir --default-timeout=100 -r requirements.txt || \
-    pip install --no-cache-dir --default-timeout=100 -r requirements.txt || \
-    pip install --no-cache-dir --default-timeout=100 -r requirements.txt
-
-# Copy the rest of the application
-COPY . .
-
-# Create server directory if not exists
+# Create server directory
 RUN mkdir -p server
+RUN echo "import sys, os; sys.path.append(os.path.dirname(os.path.dirname(__file__))); from api import app" > server/app.py
 
-# Expose the port
 EXPOSE 7860
 
-# Run the FastAPI app
 CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "7860"]

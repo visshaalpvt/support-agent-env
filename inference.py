@@ -13,10 +13,10 @@ async def main():
             await session.post(f"{SPACE_URL}/reset", json={"task_difficulty": "easy"})
             async with session.post(f"{SPACE_URL}/step", json={"classification": "delivery", "priority": "", "response": ""}) as resp:
                 data = await resp.json()
-                raw_reward = data.get("reward", {}).get("total", 0.01)
-                reward = max(0.01, min(0.99, raw_reward))
+                reward = data.get("reward", {}).get("total", 0.01)
+                reward = max(0.01, min(0.99, reward))
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        print(f"Error: {e}")
         reward = 0.01
     
     print(f'[STEP] step=1 action=delivery reward={reward:.2f} done=true error=null')
