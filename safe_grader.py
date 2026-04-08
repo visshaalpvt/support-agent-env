@@ -1,3 +1,8 @@
+import sys
+# VERSION: 2026-04-08-FINAL-v4
+sys.stderr.write("LOADING SAFE_GRADER v4 - FORCED SCORES 0.01 to 0.99\n")
+sys.stderr.flush()
+
 """
 SAFE_GRADER.py - Standalone grader for Meta Hackathon
 ALL scores forced to be strictly between 0 and 1 (0.01 to 0.99)
@@ -73,10 +78,10 @@ def _category_distance(a: str, b: str) -> int:
 
 
 def _priority_score(agent_priority: str, truth_priority: str) -> Tuple[float, str]:
-    ap = _PRIORITY_RANK.get(agent_priority, 0)
-    tp = _PRIORITY_RANK.get(truth_priority, 0)
+    ap = _PRIORITY_RANK.get(agent_priority, 99)
+    tp = _PRIORITY_RANK.get(truth_priority, 99)
 
-    if ap == 0 or tp == 0:
+    if ap == 99 or tp == 99:
         return 0.05, f"priority='{agent_priority}' INVALID(+0.05)"
 
     diff = abs(ap - tp)
@@ -111,7 +116,6 @@ def grade_easy(agent_category: str, ground_truth_category: str) -> Tuple[float, 
         fb = f"[EASY] category='{agent_category}' WRONG (expected '{ground_truth_category}', +{SCORE_FLOOR}) | total={SCORE_FLOOR}"
 
     score = force_safe(score)
-    assert 0.01 <= score <= 0.99, f"CRITICAL: grade_easy score {score} out of range"
     assert 0.01 <= score <= 0.99, f"CRITICAL: grade_easy score {score} out of range"
     return score, fb
 
@@ -148,7 +152,6 @@ def grade_medium(
 
     total = round(cat_score + pri_score, 4)
     total = force_safe(total)
-    assert 0.01 <= total <= 0.99, f"CRITICAL: grader total {total} out of range"
     assert 0.01 <= total <= 0.99, f"CRITICAL: grade_medium total {total} out of range"
 
     fb = f"[MEDIUM] {cat_fb} | {pri_fb} | total={total}"
@@ -188,9 +191,9 @@ def grade_hard(
         cat_fb = f"category:WRONG(+0.00, expected '{ground_truth_category}')"
 
     # Priority component
-    ap = _PRIORITY_RANK.get(agent_priority, 0)
-    tp = _PRIORITY_RANK.get(ground_truth_priority, 0)
-    if ap == 0 or tp == 0:
+    ap = _PRIORITY_RANK.get(agent_priority, 99)
+    tp = _PRIORITY_RANK.get(ground_truth_priority, 99)
+    if ap == 99 or tp == 99:
         pri_score = 0.00
         pri_fb = "priority:INVALID(+0.00)"
     elif abs(ap - tp) == 0:
@@ -258,7 +261,3 @@ def get_grader(difficulty: str):
 # ============================================================
 
 clip_score = force_safe
-
-import sys
-sys.stderr.write("INFO: SAFE_GRADER loaded - ALL scores forced to (0.01, 0.99)\n")
-sys.stderr.flush()
