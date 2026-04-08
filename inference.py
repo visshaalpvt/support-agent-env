@@ -1,4 +1,3 @@
-from safe_grader import clip_score
 """
 inference.py — SupportAgentEnv Inference Script
 Meta PyTorch OpenEnv Hackathon — Phase 2 Submission
@@ -31,15 +30,10 @@ import json
 import math
 import os
 import sys
+import aiohttp
 
-# ============================================================
-# SCORE CLIPPING — Phase 2 requires strictly (0, 1)
-# Defined here first so it's available even if graders import fails
-# ============================================================
-
-        return max(min_val, min(max_val, score))
-    except (TypeError, ValueError):
-        return min_val
+# Using clip_score from safe_grader
+from safe_grader import clip_score
 
 
 # ============================================================
@@ -54,59 +48,49 @@ HF_TOKEN     = os.environ.get("HF_TOKEN", "")
 SPACE_URL    = os.environ.get("SPACE_URL", "https://visshaalpvt-support-agent-env.hf.space")
 
 # ============================================================
-# VALIDATION — warn to stderr, fail gracefully with [END]
+# CLIENT INITIALIZATION (Deferred to main)
 # ============================================================
-if not API_KEY:
-    sys.stderr.write(
-        "FATAL: API_KEY environment variable is not set. "
-        "This must be the LiteLLM proxy key provided by the hackathon evaluator.\n"
-    )
-    print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
-    sys.exit(1)
+# We do not validate or initialize the client at module level
+# so that `import inference` can succeed unconditionally.
+client = None
 
-if not API_BASE_URL:
-    sys.stderr.write(
-        "WARNING: API_BASE_URL not set — this is REQUIRED for proxy routing. "
-        "Trying with empty base_url, which may cause the openai client "
-        "to use its default endpoint.\n"
-    )
-    # Don't crash — let the client try; the evaluator may set it late
-    # But DO NOT default to api.openai.com — that bypasses the proxy
+def init_client():
+    global client
+    if not API_KEY:
+        sys.stderr.write(
+            "FATAL: API_KEY environment variable is not set. "
+            "This must be the LiteLLM proxy key provided by the hackathon evaluator.\n"
+        )
+        print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
+        sys.exit(1)
 
-if not HF_TOKEN:
-    sys.stderr.write("WARNING: HF_TOKEN not set — operating without HF token.\n")
+    if not API_BASE_URL:
+        sys.stderr.write(
+            "WARNING: API_BASE_URL not set — this is REQUIRED for proxy routing. "
+            "Trying with empty base_url, which may cause the openai client "
+            "to use its default endpoint.\n"
+        )
 
-# ============================================================
-# OPENAI CLIENT — initialized inside try/except Exception
-# (not just ImportError) so ANY init failure is caught
-# ============================================================
-client = None  # declare at module level
+    if not HF_TOKEN:
+        sys.stderr.write("WARNING: HF_TOKEN not set — operating without HF token.\n")
 
-try:
-    from openai import AsyncOpenAI
-    client = AsyncOpenAI(
-        base_url=API_BASE_URL if API_BASE_URL else None,
-        api_key=API_KEY,
-        timeout=30.0,
-        max_retries=3,
-    )
-    sys.stderr.write(f"INFO: OpenAI client initialized. base_url={API_BASE_URL or '(default)'}\n")
-except ImportError:
-    sys.stderr.write("FATAL: openai package not installed.\n")
-    print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
-    sys.exit(1)
-except Exception as e:
-    # FIX for Error 1: catch ALL exceptions during client init
-    sys.stderr.write(f"FATAL: AsyncOpenAI client init failed: {e}\n")
-    print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
-    sys.exit(1)
-
-try:
-    import aiohttp
-except ImportError:
-    sys.stderr.write("FATAL: aiohttp package not installed.\n")
-    print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
-    sys.exit(1)
+    try:
+        from openai import AsyncOpenAI
+        client = AsyncOpenAI(
+            base_url=API_BASE_URL if API_BASE_URL else None,
+            api_key=API_KEY,
+            timeout=30.0,
+            max_retries=3,
+        )
+        sys.stderr.write(f"INFO: OpenAI client initialized. base_url={API_BASE_URL or '(default)'}\n")
+    except ImportError:
+        sys.stderr.write("FATAL: openai package not installed.\n")
+        print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
+        sys.exit(1)
+    except Exception as e:
+        sys.stderr.write(f"FATAL: AsyncOpenAI client init failed: {e}\n")
+        print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
+        sys.exit(1)
 
 # ============================================================
 # CONSTANTS
@@ -388,6 +372,7 @@ async def main() -> None:
     Run one episode per difficulty: easy -> medium -> hard.
     Each produces its own [START] / [STEP] / [END] block.
     """
+    init_client()
     all_rewards: list[float] = []
 
     try:
