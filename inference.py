@@ -142,9 +142,9 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
 
         # STEP
         async with session.post(f"{SPACE_URL}/step", json={
-            "classification": category,
+            "category": category,
             "priority": priority,
-            "response": agent_response
+            "response_text": agent_response
         }) as resp:
             resp.raise_for_status()
             data = await resp.json()

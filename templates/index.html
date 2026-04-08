@@ -428,12 +428,12 @@
             submitBtn.innerHTML = '⏳ Submitting...';
             
             try {
-                let payload = { classification: category, priority: "", response: "" };
+                let payload = { category: category, priority: "", response_text: "" };
                 if (currentDifficulty === 'medium' || currentDifficulty === 'hard') {
                     payload.priority = priority;
                 }
                 if (currentDifficulty === 'hard') {
-                    payload.response = response;
+                    payload.response_text = response;
                 }
                 
                 const res = await fetch(`${API_URL}/step`, {

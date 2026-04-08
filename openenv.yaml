@@ -32,7 +32,7 @@ tasks:
     difficulty: hard
 
 actions:
-  classification:
+  category:
     type: string
     required: true
     enum: ["delivery", "billing", "technical", "account", "general"]
@@ -40,7 +40,7 @@ actions:
     type: string
     required: false
     enum: ["low", "medium", "high", "urgent"]
-  response:
+  response_text:
     type: string
     required: false
 

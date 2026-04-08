@@ -29,9 +29,9 @@ class ResetRequest(BaseModel):
     task_difficulty: str = "easy"
 
 class StepRequest(BaseModel):
-    classification: str
+    category: str
     priority: Optional[str] = ""
-    response: Optional[str] = ""
+    response_text: Optional[str] = ""
 
 @app.get("/")
 async def root():
@@ -112,9 +112,9 @@ async def reset(body: Dict[str, Any] = Body(default={})):
 async def step(request: StepRequest):
     """Submit an action and get reward"""
     action = {
-        "category": request.classification,
+        "category": request.category,
         "priority": request.priority or "",
-        "response_text": request.response or ""
+        "response_text": request.response_text or ""
     }
     result = await env.step(action)
     return {
