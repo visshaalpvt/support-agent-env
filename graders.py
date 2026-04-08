@@ -263,15 +263,15 @@ def grade_hard(
         cat_score = 0.12
         cat_fb = f"category:ADJACENT(+0.12)"
     else:
-        cat_score = 0.00
-        cat_fb = f"category:WRONG(+0.00, expected '{ground_truth_category}')"
+        cat_score = 0.01
+        cat_fb = f"category:WRONG(+0.01, expected '{ground_truth_category}')"
 
     # 3. Priority component (max 0.25)
     ap = _PRIORITY_RANK.get(agent_priority, 0)
     tp = _PRIORITY_RANK.get(ground_truth_priority, 0)
     if ap == 0 or tp == 0:
-        pri_score = 0.00
-        pri_fb = "priority:INVALID(+0.00)"
+        pri_score = 0.01
+        pri_fb = "priority:INVALID(+0.01)"
     elif abs(ap - tp) == 0:
         pri_score = 0.25
         pri_fb = "priority:CORRECT(+0.25)"
@@ -282,8 +282,8 @@ def grade_hard(
         pri_score = 0.10
         pri_fb = "priority:FAR_MISS(+0.10)"
     else:
-        pri_score = 0.00
-        pri_fb = f"priority:WRONG(+0.00, expected '{ground_truth_priority}')"
+        pri_score = 0.01
+        pri_fb = f"priority:WRONG(+0.01, expected '{ground_truth_priority}')"
 
     # 4. Sentiment / Empathy component (max 0.20)
     empathy_hits = sum(1 for w in _EMPATHY_KEYWORDS if w in resp_lower)
@@ -294,8 +294,8 @@ def grade_hard(
         sent_score = 0.10
         sent_fb = f"sentiment:PARTIAL(+0.10, {empathy_hits} match)"
     else:
-        sent_score = 0.00
-        sent_fb = "sentiment:NEUTRAL(+0.00)"
+        sent_score = 0.01
+        sent_fb = "sentiment:NEUTRAL(+0.01)"
 
     # 5. Actionability component (max 0.20)
     action_hits = sum(1 for w in _RESOLUTION_KEYWORDS if w in resp_lower)
@@ -306,8 +306,8 @@ def grade_hard(
         act_score = 0.10
         act_fb = f"action:PARTIAL(+0.10, {action_hits} match)"
     else:
-        act_score = 0.00
-        act_fb = "action:VAGUE(+0.00)"
+        act_score = 0.01
+        act_fb = "action:VAGUE(+0.01)"
 
     total = round(base + cat_score + pri_score + sent_score + act_score, 4)
     # Inner clamp (preserves readable score range intent)

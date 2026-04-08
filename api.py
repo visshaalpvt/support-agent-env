@@ -90,7 +90,7 @@ async def step(request: StepRequest):
             "classification_score": result.reward.classification_score,
             "priority_score": result.reward.priority_score,
             "response_score": result.reward.response_score,
-            "penalty": 0,
+            "penalty": 0.01,
             "breakdown": result.reward.breakdown
         },
         "done": result.done

@@ -21,9 +21,9 @@ class SupportObservation(BaseModel):
 class SupportReward(BaseModel):
     total: float
     breakdown: str
-    classification_score: Optional[float] = 0.0
-    priority_score: Optional[float] = 0.0
-    response_score: Optional[float] = 0.0
+    classification_score: Optional[float] = 0.01
+    priority_score: Optional[float] = 0.01
+    response_score: Optional[float] = 0.01
 
 class SupportActionResult(BaseModel):
     observation: SupportObservation
@@ -37,5 +37,5 @@ class SupportState(BaseModel):
     task_difficulty: str = ""
     step_count: int = 0
     done: bool = False
-    last_reward: float = 0.0
+    last_reward: float = 0.01
     history: List[str] = []
