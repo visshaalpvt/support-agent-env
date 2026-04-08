@@ -93,7 +93,8 @@ async def step(request: StepRequest):
             "penalty": 0.01,
             "breakdown": result.reward.breakdown
         },
-        "done": result.done
+        "done": result.done,
+        "last_action_error": None
     }
 
 @app.get("/state")

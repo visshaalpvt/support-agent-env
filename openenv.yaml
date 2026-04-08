@@ -60,4 +60,4 @@ observations:
 rewards:
   range: [0.01, 0.99]   # strictly open interval — no 0.0 or 1.0 ever returned
   partial_credit: true
-  clip_fn: clip_score    # defined in graders.py, applied to every task score
+  clip_fn: clip_score    # defined in safe_grader.py, applied to every task score

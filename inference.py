@@ -149,11 +149,15 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
             resp.raise_for_status()
             data = await resp.json()
             
-            raw_data = data.get("reward", {})
+            raw_data = data.get("reward", 0.01)
             if isinstance(raw_data, dict):
-                current_reward = float(raw_data.get("total", 0.01))
+                raw_val = float(raw_data.get("total", 0.01))
             else:
-                current_reward = float(raw_data)
+                try:
+                    raw_val = float(raw_data)
+                except Exception:
+                    raw_val = 0.01
+            current_reward = clip_score(raw_val)
             
             done = bool(data.get("done", False))
             # [COMPLIANCE] Ensure error is 'null' if not present
