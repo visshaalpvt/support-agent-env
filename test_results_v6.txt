@@ -1,0 +1,28 @@
+LOADING TRIPLE-CLAMP GRADER (Tier 1)
+
+======================================================================
+  VALIDATOR FIX TEST SUITE
+======================================================================
+  [PASS]: Clip Score Function
+  [FAIL]: No Binary Returns
+        safe_grader.py:26 -> raw_score = 1.0
+        safe_grader.py:27 -> feedback = f"[EASY] Category '{agent_category}' is CORRECT. Score: classification=1.0 | total=1.0"
+        safe_grader.py:29 -> raw_score = 0.0
+  [PASS]: No safe_grader Import
+  [PASS]: clip_score Defined
+  [PASS]: API_BASE_URL
+  [PASS]: [END] Format
+  [PASS]: Grader Ranges
+  [FAIL]: No Binary Scores in Grader
+        safe_grader.py:26 -> raw_score = 1.0
+        safe_grader.py:27 -> feedback = f"[EASY] Category '{agent_category}' is CORRECT. Score: classification=1.0 | total=1.0"
+        safe_grader.py:29 -> raw_score = 0.0
+  [PASS]: Exception Handlers
+  [PASS]: Score Aggregation
+
+======================================================================
+  TEST SUMMARY
+======================================================================
+
+  Passed: 8
+  Failed: 2

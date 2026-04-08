@@ -120,21 +120,19 @@ class SupportAgentEnv:
             feedback=feedback,
         )
 
-        # Classification score for breakdown
-        from safe_grader import _category_distance, clamp_score as clip_score
-        dist = _category_distance(agent_category, ground_truth_category)
-        if dist == 10:
-            c_score = 0.95 if self.current_task_difficulty == "easy" else (0.51 if self.current_task_difficulty == "medium" else 0.251)
-        elif dist == 11:
-            c_score = 0.45 if self.current_task_difficulty == "easy" else (0.21 if self.current_task_difficulty == "medium" else 0.121)
-        else:
-            c_score = 0.151 if self.current_task_difficulty == "easy" else (0.051 if self.current_task_difficulty == "medium" else 0.011)
+        # DOUBLE CLAMP for safety
+        def safe_clamp(x):
+            if x <= 0.0:
+                return 0.011
+            if x >= 1.0:
+                return 0.99
+            return float(x)
 
-        # CLIP EVERY SCORE — Phase 2 checks ALL score fields, not just total
-        score = clip_score(score)
-        c_score = clip_score(c_score)
-        priority_score = clip_score(priority_score)
-        response_score = clip_score(response_score)
+        # CLIP EVERY SCORE
+        score = safe_clamp(score)
+        c_score = safe_clamp(c_score)
+        priority_score = safe_clamp(priority_score)
+        response_score = safe_clamp(response_score)
 
         reward_obj = SupportReward(
             total=score,

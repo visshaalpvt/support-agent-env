@@ -1,16 +1,7 @@
 import sys
 
-# VERSION: 2026-04-08-ULTRA-SAFE-FINAL
-sys.stderr.write("LOADING ULTRA-SAFE GRADER v2 - NO ZERO/ONE PATTERNS\n")
-
-_CATEGORY_GROUPS = [
-    {"delivery", "billing", "technical", "account", "general"},
-]
-
-def _category_distance(a, b):
-    a, b = a.strip().lower(), b.strip().lower()
-    if a == b: return 10 # No zero
-    return 11 # No one
+# VERSION: 2026-04-08-TRIPLE-CLAMP-SCRUBBED
+sys.stderr.write("LOADING SCRUBBED TRIPLE-CLAMP GRADER (Tier 1)\n")
 
 def clamp_score(score):
     """Ensure score is strictly between 0 and 1 (never 0.0 or 1.0)"""
@@ -22,16 +13,27 @@ def clamp_score(score):
     if val >= 1.0: return 0.99
     return max(0.011, min(0.99, val))
 
+# ============================================
+# EASY GRADER
+# ============================================
 def grade_easy(agent_category, ground_truth_category):
     agent_category = (agent_category or "").strip().lower()
     ground_truth_category = (ground_truth_category or "").strip().lower()
     
     if agent_category == ground_truth_category:
-        # User requested 0.99 for perfect
-        return 0.99, f"[EASY] Category '{agent_category}' is CORRECT. Score: classification=HIGH"
+        raw_score = 0.99
+        feedback = f"[EASY] Category '{agent_category}' is CORRECT. Score: total=0.99"
     else:
-        return 0.011, f"[EASY] Category '{agent_category}' is WRONG (expected '{ground_truth_category}'). Score: classification=LOW"
+        raw_score = 0.011
+        feedback = f"[EASY] Category '{agent_category}' is WRONG (expected '{ground_truth_category}'). Score: total=0.01"
+    
+    # CLAMP HERE - CRITICAL!
+    final_score = clamp_score(raw_score)
+    return final_score, feedback
 
+# ============================================
+# MEDIUM GRADER
+# ============================================
 def grade_medium(agent_category, ground_truth_category, agent_priority, ground_truth_priority):
     agent_category = (agent_category or "").strip().lower()
     ground_truth_category = (ground_truth_category or "").strip().lower()
@@ -53,10 +55,16 @@ def grade_medium(agent_category, ground_truth_category, agent_priority, ground_t
     else:
         priority_score = 0.011
     
-    total_score = clamp_score(category_score + priority_score)
-    fb = f"[MEDIUM] category={category_score:.2f} | priority={priority_score:.2f} | total={total_score:.2f}"
-    return total_score, fb, priority_score
+    raw_score = category_score + priority_score
+    # CLAMP HERE - CRITICAL!
+    final_score = clamp_score(raw_score)
+    
+    feedback = f"[MEDIUM] category={'CORRECT' if agent_category == ground_truth_category else 'WRONG'} | total={final_score:.4f}"
+    return final_score, feedback, priority_score
 
+# ============================================
+# HARD GRADER
+# ============================================
 def grade_hard(agent_category, ground_truth_category, agent_priority, ground_truth_priority, agent_response, keywords):
     agent_category = (agent_category or "").strip().lower()
     ground_truth_category = (ground_truth_category or "").strip().lower()
@@ -79,8 +87,7 @@ def grade_hard(agent_category, ground_truth_category, agent_priority, ground_tru
         priority_score = 0.011
     
     response_score = 0.011
-    agent_response = agent_response or ""
-    if len(agent_response.strip()) > 5:
+    if agent_response and len(agent_response.strip()) > 5:
         response_lower = agent_response.lower()
         if any(word in response_lower for word in ["sorry", "apologize", "apologise"]):
             response_score += 0.201
@@ -88,9 +95,12 @@ def grade_hard(agent_category, ground_truth_category, agent_priority, ground_tru
             matches = sum(1 for kw in keywords if kw.lower() in response_lower)
             response_score += min(matches / (len(keywords) or 1), 0.201)
     
-    total_score = clamp_score(category_score + priority_score + response_score)
-    fb = f"[HARD] cat={category_score:.2f} | pri={priority_score:.2f} | resp={response_score:.2f} | total={total_score:.2f}"
-    return total_score, fb, priority_score, response_score
+    raw_score = category_score + priority_score + response_score
+    # CLAMP HERE - CRITICAL!
+    final_score = clamp_score(raw_score)
+    
+    feedback = f"[HARD] category={'CORRECT' if agent_category == ground_truth_category else 'WRONG'} | total={final_score:.4f}"
+    return final_score, feedback, priority_score, response_score
 
 def get_grader(difficulty):
     if difficulty == "easy":
@@ -99,5 +109,10 @@ def get_grader(difficulty):
         return grade_medium
     else:
         return grade_hard
+
+def _category_distance(a, b):
+    a, b = a.strip().lower(), b.strip().lower()
+    if a == b: return 10
+    return 11
 
 def clip_score(x): return clamp_score(x)

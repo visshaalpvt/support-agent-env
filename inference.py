@@ -166,7 +166,7 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
         print(f"[STEP] step={step_count} action=error reward=0.011 done=false error={last_error}", flush=True)
     
     finally:
-        # [END] log - COMPLIANCE: Final score MUST be clamped
+        # TRIPLE CLAMP for safety
         final_score = clip_score(raw_reward)
         print(f"[END] task={task_name} score={final_score:.2f} steps={step_count}", flush=True)
     
