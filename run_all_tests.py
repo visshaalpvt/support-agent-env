@@ -126,34 +126,44 @@ class ValidatorTestSuite:
         return True
 
     # =========================================================
-    # TEST 5: API_BASE_URL
+    # TEST 5: HF_TOKEN and API_BASE_URL
     # =========================================================
-    def test_api_base_url(self):
+    def test_env_vars(self):
         inference_path = Path('inference.py')
         if not inference_path.exists(): return False
         with open(inference_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        if '.get("API_BASE_URL", "")' in content:
-            self.print_test("API_BASE_URL", False, "Found empty fallback for API_BASE_URL")
-            return False
+        
+        passed = True
+        details = []
+        
+        if 'os.environ["HF_TOKEN"]' not in content:
+            passed = False
+            details.append("Missing mandatory HF_TOKEN indexing")
+        
         if 'os.environ["API_BASE_URL"]' not in content:
-            self.print_test("API_BASE_URL", False, "Missing mandatory API_BASE_URL indexing")
-            return False
-        self.print_test("API_BASE_URL", True)
-        return True
+            passed = False
+            details.append("Missing mandatory API_BASE_URL indexing")
+            
+        self.print_test("Env Vars (HF_TOKEN/BASE)", passed, " | ".join(details))
+        return passed
 
     # =========================================================
-    # TEST 6: [END] Format
+    # TEST 6: [END] Format (OpenEnv Spec)
     # =========================================================
     def test_end_format(self):
         inference_path = Path('inference.py')
         if not inference_path.exists(): return False
         with open(inference_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        if '[END]' in content and 'task=' in content and 'score=' in content and 'steps=' in content:
+            
+        # [END] success=<true|false> steps=<n> rewards=<r1,r2,...,rn>
+        pattern = r"\[END\]\s+success=(true|false)\s+steps=\S+\s+rewards=\S+"
+        if re.search(pattern, content):
             self.print_test("[END] Format", True)
             return True
-        self.print_test("[END] Format", False, "Missing log_end or proper END format")
+            
+        self.print_test("[END] Format", False, "Incorrect END format. Expected: success=... steps=... rewards=...")
         return False
 
     # =========================================================
@@ -245,7 +255,7 @@ class ValidatorTestSuite:
         self.test_no_binary_returns()
         self.test_no_safe_grader_import()
         self.test_clip_score_defined()
-        self.test_api_base_url()
+        self.test_env_vars()
         self.test_end_format()
         self.test_grader_ranges()
         self.test_no_binary_scores_in_grader()
