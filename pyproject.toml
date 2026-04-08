@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-support-agent-env = "server.app:main"
+server = "server.app:main"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
