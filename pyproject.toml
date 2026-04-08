@@ -6,11 +6,15 @@ build-backend = "setuptools.backends.legacy:build"
 name = "support-agent"
 version = "1.0.0"
 description = "Meta Hackathon Support Agent"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "aiohttp",
     "openai",
+    "openenv-core>=0.2.0",
 ]
+
+[project.scripts]
+server = "inference:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
