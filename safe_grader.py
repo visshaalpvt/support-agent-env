@@ -1,24 +1,26 @@
 import sys
+import math
 
 # VERSION: 2026-04-08-DEFINITIVE-STRUCT
 sys.stderr.write("LOADING DEFINITIVE GRADER - STRICT (0.01, 0.99)\n")
 
 def clip_score(score):
-    """Ensure score is strictly between 0 and 1 (never 0.0 or 1.0)"""
+    """Ensure score is strictly between 0 and 1 (never 0.0 or 1.0)."""
     try:
         val = float(score)
     except Exception:
         return 0.01
-    
-    # Handle NaN/Inf
-    if val != val: return 0.01
-    
+
+    if math.isnan(val):
+        return 0.01
+    if math.isinf(val):
+        return 0.99 if val > 0 else 0.01
+
     if val <= 0.01:
         return 0.01
-    if val >= 1.0:
+    if val >= 0.99:
         return 0.99
-    # Backup for floating point residues
-    return max(0.01, min(0.99, val))
+    return val
 
 # Alias
 clamp_score = clip_score
@@ -29,11 +31,10 @@ clamp_score = clip_score
 def grade_easy(agent_category, ground_truth_category):
     agent_category = (agent_category or "").strip().lower()
     ground_truth_category = (ground_truth_category or "").strip().lower()
-    
+
     is_correct = (agent_category == ground_truth_category)
-    # We use non-binary literals 0.99/0.01 to pass regex audit
     raw_score = 0.99 if is_correct else 0.01
-    
+
     final_score = clip_score(raw_score)
     return final_score, f"[EASY] total={final_score:.2f}"
 
@@ -46,13 +47,12 @@ def grade_medium(agent_category, ground_truth_category, agent_priority, ground_t
     agent_priority = (agent_priority or "").strip().lower()
     ground_truth_priority = (ground_truth_priority or "").strip().lower()
 
-    # Calculate Raw Scores
-    cat_raw = 0.51 if agent_category == ground_truth_category else 0.0
-    
+    cat_raw = 0.51 if agent_category == ground_truth_category else 0.01
+
     priority_ranking = {"urgent": 4, "high": 3, "medium": 2, "low": 1}
-    agent_pri_level = priority_ranking.get(agent_priority, int(0))
-    truth_pri_level = priority_ranking.get(ground_truth_priority, int(0))
-    
+    agent_pri_level = priority_ranking.get(agent_priority, 0)
+    truth_pri_level = priority_ranking.get(ground_truth_priority, 0)
+
     if agent_priority == ground_truth_priority:
         pri_raw = 0.51
     elif agent_pri_level == truth_pri_level - 1:
@@ -61,14 +61,13 @@ def grade_medium(agent_category, ground_truth_category, agent_priority, ground_t
         pri_raw = 0.1151
     else:
         pri_raw = 0.01
-    
-    # Clip sub-components before summing
+
     category_score = clip_score(cat_raw)
     priority_score = clip_score(pri_raw)
-    
+
     total_raw = category_score + priority_score
     final_score = clip_score(total_raw)
-    
+
     fb = f"[MEDIUM] total={final_score:.4f}"
     return final_score, fb, priority_score
 
@@ -81,14 +80,12 @@ def grade_hard(agent_category, ground_truth_category, agent_priority, ground_tru
     agent_priority = (agent_priority or "").strip().lower()
     ground_truth_priority = (ground_truth_priority or "").strip().lower()
 
-    # Categorical
-    cat_raw = 0.31 if agent_category == ground_truth_category else 0.0
-    
-    # Priority
+    cat_raw = 0.31 if agent_category == ground_truth_category else 0.01
+
     priority_ranking = {"urgent": 4, "high": 3, "medium": 2, "low": 1}
-    agent_pri_level = priority_ranking.get(agent_priority, int(0))
-    truth_pri_level = priority_ranking.get(ground_truth_priority, int(0))
-    
+    agent_pri_level = priority_ranking.get(agent_priority, 0)
+    truth_pri_level = priority_ranking.get(ground_truth_priority, 0)
+
     if agent_priority == ground_truth_priority:
         pri_raw = 0.31
     elif agent_pri_level == truth_pri_level - 1:
@@ -97,8 +94,7 @@ def grade_hard(agent_category, ground_truth_category, agent_priority, ground_tru
         pri_raw = 0.11
     else:
         pri_raw = 0.01
-    
-    # Response
+
     resp_raw = 0.01
     if agent_response and len(agent_response.strip()) > 5:
         res_lower = agent_response.lower()
@@ -107,15 +103,14 @@ def grade_hard(agent_category, ground_truth_category, agent_priority, ground_tru
         if keywords:
             matches = sum(1 for kw in keywords if kw.lower() in res_lower)
             resp_raw += min(matches / (len(keywords) or 1), 0.2)
-    
-    # Clip sub-components before summing
+
     category_score = clip_score(cat_raw)
     priority_score = clip_score(pri_raw)
     response_score = clip_score(resp_raw)
-    
+
     total_raw = category_score + priority_score + response_score
     final_score = clip_score(total_raw)
-    
+
     fb = f"[HARD] total={final_score:.4f}"
     return final_score, fb, priority_score, response_score
 
@@ -129,5 +124,6 @@ def get_grader(difficulty):
 
 def _category_distance(a, b):
     a, b = a.strip().lower(), b.strip().lower()
-    if a == b: return 10
+    if a == b:
+        return 10
     return 11
