@@ -1,0 +1,39 @@
+LOADING SAFE_GRADER v4 - FORCED SCORES 0.01 to 0.99
+============================================================
+  PHASE 2 VALIDATOR FIX VERIFICATION
+============================================================
+
+[TEST] Testing clip_score() logic...
+  PASS Input: -100     -> 0.0100
+  PASS Input: -1       -> 0.0100
+  PASS Input: 0        -> 0.0100
+  PASS Input: 0.005    -> 0.0100
+  PASS Input: 0.5      -> 0.5000
+  PASS Input: 0.995    -> 0.9900
+  PASS Input: 1        -> 0.9900
+  PASS Input: 2        -> 0.9900
+  PASS Input: 100      -> 0.9900
+
+[TEST] Testing grader edge cases...
+  PASS easy-perfect    -> 0.9500
+  PASS easy-miss       -> 0.1500
+  PASS medium-perfect  -> 0.9500
+  PASS hard-perfect    -> 0.8100
+
+[TEST] Auditing source code for forbidden patterns...
+  FAIL found in support_env.py:127 -> c_score = 0.95 if self.current_task_difficulty == "easy" else (0.50 if self.current_task_difficulty == "medium" else 0.25)
+  FAIL found in support_env.py:129 -> c_score = 0.45 if self.current_task_difficulty == "easy" else (0.20 if self.current_task_difficulty == "medium" else 0.12)
+  FAIL found in support_env.py:131 -> c_score = 0.15 if self.current_task_difficulty == "easy" else (0.05 if self.current_task_difficulty == "medium" else 0.01)
+
+[TEST] Checking inference.py structure...
+  PASS
+
+============================================================
+  TEST SUMMARY
+============================================================
+  PASS: Clip Logic
+  PASS: Grader Ranges
+  FAIL: String Audit
+  PASS: Inference Compliance
+============================================================
+  TESTS FAILED

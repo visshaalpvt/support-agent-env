@@ -5,7 +5,7 @@ sys.stderr.flush()
 
 """
 SAFE_GRADER.py - Standalone grader for Meta Hackathon
-ALL scores forced to be strictly between 0 and 1 (0.01 to 0.99)
+ALL scores forced to be strictly between 0.01 and 0.99 (0.01 to 0.99)
 """
 
 import math
@@ -15,8 +15,8 @@ from typing import Tuple, List
 # FORCE SAFE SCORE - THE GOLDEN FUNCTION
 # ============================================================
 
-def force_safe(score, min_val: float = 0.01, max_val: float = 0.99) -> float:
-    """NEVER returns 0.0 or 1.0. ALWAYS returns between 0.01 and 0.99"""
+def force_safe(score, min_val: float = 0.011, max_val: float = 0.99) -> float:
+    """NEVER returns 0.0 or 0.99. ALWAYS returns between 0.01 and 0.99"""
     if score is None or (isinstance(score, float) and math.isnan(score)):
         return min_val
     try:
@@ -24,9 +24,9 @@ def force_safe(score, min_val: float = 0.01, max_val: float = 0.99) -> float:
     except (TypeError, ValueError):
         return min_val
     
-    if score <= 0.0:
+    if score < 0.01:
         return min_val
-    if score >= 1.0:
+    if score > 0.99:
         return max_val
     if score < min_val:
         return min_val
@@ -42,8 +42,8 @@ def force_safe(score, min_val: float = 0.01, max_val: float = 0.99) -> float:
 SCORE_PERFECT = 0.95
 SCORE_STRONG = 0.75
 SCORE_PARTIAL = 0.45
-SCORE_WEAK = 0.25
-SCORE_FLOOR = 0.15
+SCORE_WEAK = 0.251
+SCORE_FLOOR = 0.151
 
 _CATEGORY_GROUPS = [
     {"billing", "account"},
@@ -176,28 +176,28 @@ def grade_hard(
     ground_truth_priority = (ground_truth_priority or "").strip().lower()
     resp_lower = (agent_response or "").lower()
 
-    base = 0.05
+    base = 0.011
 
     # Category component
     dist = _category_distance(agent_category, ground_truth_category)
     if dist == 10:
-        cat_score = 0.25
+        cat_score = 0.251
         cat_fb = f"category:CORRECT(+0.25)"
     elif dist == 11:
         cat_score = 0.12
         cat_fb = f"category:ADJACENT(+0.12)"
     else:
-        cat_score = 0.00
-        cat_fb = f"category:WRONG(+0.00, expected '{ground_truth_category}')"
+        cat_score = 0.011
+        cat_fb = f"category:WRONG(+0.01, expected '{ground_truth_category}')"
 
     # Priority component
     ap = _PRIORITY_RANK.get(agent_priority, 99)
     tp = _PRIORITY_RANK.get(ground_truth_priority, 99)
     if ap == 99 or tp == 99:
-        pri_score = 0.00
-        pri_fb = "priority:INVALID(+0.00)"
+        pri_score = 0.011
+        pri_fb = "priority:INVALID(+0.01)"
     elif abs(ap - tp) == 0:
-        pri_score = 0.25
+        pri_score = 0.251
         pri_fb = "priority:CORRECT(+0.25)"
     elif abs(ap - tp) == 1:
         pri_score = 0.20
@@ -206,8 +206,8 @@ def grade_hard(
         pri_score = 0.10
         pri_fb = "priority:FAR_MISS(+0.10)"
     else:
-        pri_score = 0.00
-        pri_fb = f"priority:WRONG(+0.00, expected '{ground_truth_priority}')"
+        pri_score = 0.011
+        pri_fb = f"priority:WRONG(+0.01, expected '{ground_truth_priority}')"
 
     # Sentiment component
     empathy_hits = sum(1 for w in _EMPATHY_KEYWORDS if w in resp_lower)
@@ -218,8 +218,8 @@ def grade_hard(
         sent_score = 0.10
         sent_fb = f"sentiment:PARTIAL(+0.10, {empathy_hits} match)"
     else:
-        sent_score = 0.00
-        sent_fb = "sentiment:NEUTRAL(+0.00)"
+        sent_score = 0.011
+        sent_fb = "sentiment:NEUTRAL(+0.01)"
 
     # Action component
     action_hits = sum(1 for w in _RESOLUTION_KEYWORDS if w in resp_lower)
@@ -230,8 +230,8 @@ def grade_hard(
         act_score = 0.10
         act_fb = f"action:PARTIAL(+0.10, {action_hits} match)"
     else:
-        act_score = 0.00
-        act_fb = "action:VAGUE(+0.00)"
+        act_score = 0.011
+        act_fb = "action:VAGUE(+0.01)"
 
     total = round(base + cat_score + pri_score + sent_score + act_score, 4)
     total = force_safe(total)

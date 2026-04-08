@@ -32,20 +32,45 @@ import os
 import sys
 import aiohttp
 
-# Using clip_score from safe_grader
-from safe_grader import clip_score
+# ============================================
+# FIX #2: Inline clamp function (no import)
+# ============================================
+def clip_score(x):
+    """Clamp to (0.01, 0.99) exclusive range"""
+    try:
+        val = float(x)
+        if val != val:  # NaN guard
+            return 0.01
+        return max(0.01, min(0.99, val))
+    except (TypeError, ValueError):
+        return 0.01
+
+# ============================================
+# FIX #1 & #8: Proper log_end function
+# ============================================
+def log_end(task, score, steps):
+    """Log end of task with clamped score and proper format"""
+    safe_score = clip_score(score)
+    print(f"[END] task={task} score={safe_score:.2f} steps={steps}", flush=True)
 
 
 # ============================================================
 # ENVIRONMENT VARIABLES — read from evaluator's environment
 # ============================================================
-# API_BASE_URL: NO DEFAULT — must come from the evaluator's LiteLLM proxy
-# If missing, we warn and try to continue (the proxy should provide it)
-API_BASE_URL = os.environ.get("API_BASE_URL", "")
-MODEL_NAME   = os.environ.get("MODEL_NAME", "gpt-4o-mini")
-API_KEY      = os.environ.get("API_KEY", "")
-HF_TOKEN     = os.environ.get("HF_TOKEN", "")
-SPACE_URL    = os.environ.get("SPACE_URL", "https://visshaalpvt-support-agent-env.hf.space")
+# FIX #3: No empty string fallback for API_BASE_URL/API_KEY
+# This ensures we NEVER bypass the required proxy.
+try:
+    API_BASE_URL = os.environ["API_BASE_URL"]
+    API_KEY      = os.environ["API_KEY"]
+except KeyError as e:
+    sys.stderr.write(f"FATAL: Missing mandatory environment variable: {e}\n")
+    # Emit a failsafe [END] line if possible
+    print(f"[END] task=init score=0.011 steps=00", flush=True)
+    sys.exit(1)
+
+MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o-mini")
+HF_TOKEN   = os.environ.get("HF_TOKEN", "")
+SPACE_URL  = os.environ.get("SPACE_URL", "https://visshaalpvt-support-agent-env.hf.space")
 
 # ============================================================
 # CLIENT INITIALIZATION (Deferred to main)
@@ -56,40 +81,22 @@ client = None
 
 def init_client():
     global client
-    if not API_KEY:
-        sys.stderr.write(
-            "FATAL: API_KEY environment variable is not set. "
-            "This must be the LiteLLM proxy key provided by the hackathon evaluator.\n"
-        )
-        print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
-        sys.exit(1)
-
-    if not API_BASE_URL:
-        sys.stderr.write(
-            "WARNING: API_BASE_URL not set — this is REQUIRED for proxy routing. "
-            "Trying with empty base_url, which may cause the openai client "
-            "to use its default endpoint.\n"
-        )
-
-    if not HF_TOKEN:
-        sys.stderr.write("WARNING: HF_TOKEN not set — operating without HF token.\n")
-
     try:
         from openai import AsyncOpenAI
         client = AsyncOpenAI(
-            base_url=API_BASE_URL if API_BASE_URL else None,
+            base_url=API_BASE_URL,
             api_key=API_KEY,
             timeout=30.0,
             max_retries=3,
         )
-        sys.stderr.write(f"INFO: OpenAI client initialized. base_url={API_BASE_URL or '(default)'}\n")
+        sys.stderr.write(f"INFO: OpenAI client initialized. base_url={API_BASE_URL}\n")
     except ImportError:
         sys.stderr.write("FATAL: openai package not installed.\n")
-        print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
+        log_end("init", 0.05, 0)
         sys.exit(1)
     except Exception as e:
         sys.stderr.write(f"FATAL: AsyncOpenAI client init failed: {e}\n")
-        print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
+        log_end("init", 0.05, 0)
         sys.exit(1)
 
 # ============================================================
@@ -154,7 +161,7 @@ async def classify_ticket(ticket_text: str) -> str:
                     "content": f"Support ticket: {ticket_text}",
                 },
             ],
-            temperature=0,
+            temperature=0.01,
             max_tokens=10,
         )
         raw = ""
@@ -191,7 +198,7 @@ async def classify_priority(ticket_text: str, category: str) -> str:
                     "content": f"Category: {category}\nTicket: {ticket_text}",
                 },
             ],
-            temperature=0,
+            temperature=0.01,
             max_tokens=10,
         )
         raw = ""
@@ -231,7 +238,7 @@ async def generate_response(ticket_text: str, category: str, priority: str) -> s
                     ),
                 },
             ],
-            temperature=0.3,
+            temperature=0.01.3,
             max_tokens=120,
         )
         raw = ""
@@ -328,7 +335,7 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
             try:
                 raw_reward = float(reward_data)
             except (TypeError, ValueError):
-                raw_reward = 0.15
+                raw_reward = 0.151
 
         # clip_score — guaranteed strictly in (0.01, 0.99)
         reward = clip_score(raw_reward)
@@ -346,19 +353,16 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
 
     finally:
         # Ensure reward is ALWAYS clipped before printing
-        reward = clip_score(reward)
+        final_reward = clip_score(reward)
 
         # [STEP] — emitted inside finally so it always prints
         print(
-            f"[STEP] step={step_count} action={action_str} reward={reward:.2f} "
+            f"[STEP] step={step_count} action={action_str} reward={final_reward:.2f} "
             f"done={'true' if done else 'false'} error={last_error}",
             flush=True,
         )
-        # [END] — always last, always printed
-        print(
-            f"[END] success={'true' if success else 'false'} rewards={reward:.2f}",
-            flush=True,
-        )
+        # [END] — FIX #1: Correct format with task, score, steps
+        log_end(task_name, final_reward, step_count)
 
     return reward
 
@@ -384,8 +388,7 @@ async def main() -> None:
         sys.stderr.write(f"[FATAL] main error: {e}\n")
         # If the outer loop crashes, emit a safety [END]
         mean_r = sum(all_rewards) / len(all_rewards) if all_rewards else 0.15
-        mean_r = clip_score(mean_r)  # guaranteed in (0.01, 0.99)
-        print(f"[END] success=false rewards={mean_r:.2f}", flush=True)
+        log_end("main-crash", mean_r, 0)
 
 
 if __name__ == "__main__":

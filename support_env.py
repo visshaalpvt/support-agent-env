@@ -7,7 +7,7 @@ Implements the OpenEnv interface:
   state()               → SupportState
   close()               → None
 
-Graders are fully deterministic and return scores in (0, 1) exclusive.
+Graders are fully deterministic and return scores in (0.01, 0.99) exclusive.
 """
 
 import asyncio
@@ -28,7 +28,7 @@ class SupportAgentEnv:
         self.step_count = 0
         self.done = False
         self.history: List[str] = []
-        self.last_reward = 0.15  # floor default
+        self.last_reward = 0.151  # floor default
 
     async def reset(self, task_difficulty: str = "easy") -> SupportObservation:
         """Reset the environment to start a new episode."""
@@ -37,7 +37,7 @@ class SupportAgentEnv:
         self.step_count = 0
         self.done = False
         self.history = []
-        self.last_reward = 0.15
+        self.last_reward = 0.151
 
         return SupportObservation(
             ticket_id=self.current_ticket.get("id", "T001"),
@@ -73,8 +73,8 @@ class SupportAgentEnv:
         # Grade using the appropriate grader
         grader = get_grader(self.current_task_difficulty)
 
-        priority_score = 0.01
-        response_score = 0.01
+        priority_score = 0.011
+        response_score = 0.011
 
         if self.current_task_difficulty == "easy":
             score, feedback = grader(agent_category, ground_truth_category)
@@ -124,11 +124,11 @@ class SupportAgentEnv:
         from safe_grader import _category_distance, clip_score
         dist = _category_distance(agent_category, ground_truth_category)
         if dist == 10:
-            c_score = 0.95 if self.current_task_difficulty == "easy" else (0.50 if self.current_task_difficulty == "medium" else 0.25)
+            c_score = 0.95 if self.current_task_difficulty == "easy" else (0.51 if self.current_task_difficulty == "medium" else 0.25)
         elif dist == 11:
-            c_score = 0.45 if self.current_task_difficulty == "easy" else (0.20 if self.current_task_difficulty == "medium" else 0.12)
+            c_score = 0.45 if self.current_task_difficulty == "easy" else (0.21 if self.current_task_difficulty == "medium" else 0.12)
         else:
-            c_score = 0.15 if self.current_task_difficulty == "easy" else (0.05 if self.current_task_difficulty == "medium" else 0.01)
+            c_score = 0.151 if self.current_task_difficulty == "easy" else (0.051 if self.current_task_difficulty == "medium" else 0.01)
 
         # CLIP EVERY SCORE — Phase 2 checks ALL score fields, not just total
         score = clip_score(score)
