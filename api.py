@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Body
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -34,11 +35,51 @@ class StepRequest(BaseModel):
 @app.get("/")
 async def root():
     """Serve the frontend UI"""
-    try:
-        with open("templates/index.html", "r") as f:
-            return HTMLResponse(content=f.read())
-    except FileNotFoundError:
-        return HTMLResponse(content="<h1>SupportAgentEnv</h1><p>API is running. Use /docs for API documentation.</p>")
+    # Try multiple paths
+    html_paths = [
+        "templates/index.html",
+        os.path.join(os.path.dirname(__file__), "templates", "index.html")
+    ]
+    
+    for path in html_paths:
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read())
+    
+    # Fallback if file not found
+    return HTMLResponse(content="""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>SupportAgentEnv</title>
+        <style>
+            body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
+            .card { background: #f5f5f5; padding: 20px; border-radius: 10px; }
+            button { background: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        </style>
+    </head>
+    <body>
+        <h1>🤖 SupportAgentEnv</h1>
+        <div class="card">
+            <h2>Customer Support Training Environment</h2>
+            <p>API is running! Use <a href="/docs">/docs</a> for API documentation.</p>
+            <button onclick="loadTicket()">Load Random Ticket</button>
+            <div id="ticket"></div>
+        </div>
+        <script>
+            async function loadTicket() {
+                const response = await fetch('/reset', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({task_difficulty: 'easy'})
+                });
+                const data = await response.json();
+                document.getElementById('ticket').innerHTML = `<p><strong>Ticket:</strong> ${data.ticket_text}</p>`;
+            }
+        </script>
+    </body>
+    </html>
+    """)
 
 @app.get("/health")
 async def health():

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SupportAgentEnv - Customer Support Training</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .badge-easy { background: #4CAF50; color: white; }
+        .badge-medium { background: #FF9800; color: white; }
+        .badge-hard { background: #f44336; color: white; }
+        .ticket {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        select, textarea, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .score {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .score-high { background: #4CAF50; color: white; }
+        .score-mid { background: #FF9800; color: white; }
+        .score-low { background: #f44336; color: white; }
+        .feedback {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+        }
+        .difficulty-container {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .difficulty-btn {
+            flex: 1;
+            text-align: center;
+        }
+        .difficulty-btn.active {
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 SupportAgentEnv</h1>
+        <p>OpenEnv Customer Support Training & Evaluation Dashboard</p>
+        
+        <div class="difficulty-container">
+            <button class="badge-easy difficulty-btn" data-diff="easy">🟢 Easy<br><small>Classification Only</small></button>
+            <button class="badge-medium difficulty-btn" data-diff="medium">🟡 Medium<br><small>+ Priority</small></button>
+            <button class="badge-hard difficulty-btn" data-diff="hard">🔴 Hard<br><small>+ Written Response</small></button>
+        </div>
+        
+        <div class="ticket">
+            <h3>📧 CURRENT TICKET</h3>
+            <div id="ticketText">Click "Load Ticket" to start</div>
+            <div id="ticketId" style="font-size: 12px; color: #666; margin-top: 10px;"></div>
+            <button id="loadBtn" style="margin-top: 15px; background: #6c757d;">🔄 Load Random Ticket</button>
+        </div>
+        
+        <div>
+            <h3>✍️ AGENT ACTION</h3>
+            <select id="category">
+                <option value="">Select Category...</option>
+                <option value="delivery">🚚 Delivery Issue</option>
+                <option value="billing">💰 Billing Problem</option>
+                <option value="technical">🐛 Technical Bug</option>
+                <option value="account">🔐 Account Access</option>
+                <option value="general">❓ General Inquiry</option>
+            </select>
+            
+            <select id="priority">
+                <option value="">Select Priority...</option>
+                <option value="low">🟢 Low</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="high">🟠 High</option>
+                <option value="urgent">🔴 Urgent</option>
+            </select>
+            
+            <textarea id="response" rows="4" placeholder="Type your customer response here..."></textarea>
+            
+            <button id="submitBtn">📤 Submit Action</button>
+        </div>
+        
+        <div id="result" style="display: none;">
+            <div class="score" id="scoreDisplay">0.00</div>
+            <div class="feedback" id="feedbackDisplay"></div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = "https://visshaalpvt-support-agent-env.hf.space";
+        let currentDifficulty = "easy";
+        let currentTicket = null;
+        
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentDifficulty = btn.dataset.diff;
+                loadTicket();
+            });
+        });
+        
+        document.getElementById('loadBtn').addEventListener('click', loadTicket);
+        document.getElementById('submitBtn').addEventListener('click', submitAction);
+        
+        async function loadTicket() {
+            try {
+                const response = await fetch(`${API_URL}/reset`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task_difficulty: currentDifficulty })
+                });
+                currentTicket = await response.json();
+                document.getElementById('ticketText').innerHTML = `"${currentTicket.ticket_text}"`;
+                document.getElementById('ticketId').innerHTML = `Ticket ID: ${currentTicket.ticket_id} | Level: ${currentTicket.task_level}`;
+                document.getElementById('result').style.display = 'none';
+                document.getElementById('category').value = '';
+                document.getElementById('priority').value = '';
+                document.getElementById('response').value = '';
+            } catch (error) {
+                document.getElementById('ticketText').innerHTML = 'Error loading ticket. Make sure Space is running.';
+            }
+        }
+        
+        async function submitAction() {
+            const category = document.getElementById('category').value;
+            const priority = document.getElementById('priority').value;
+            const response = document.getElementById('response').value;
+            
+            if (!category) {
+                alert('Please select a category!');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/step`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ classification: category, priority: priority, response: response })
+                });
+                const data = await res.json();
+                const reward = data.reward?.total || 0;
+                const feedback = data.reward?.breakdown || '';
+                
+                document.getElementById('scoreDisplay').innerHTML = `${reward.toFixed(2)} / 1.00`;
+                document.getElementById('feedbackDisplay').innerHTML = feedback;
+                document.getElementById('result').style.display = 'block';
+                
+                // Auto-load next ticket after 2 seconds
+                setTimeout(() => loadTicket(), 3000);
+            } catch (error) {
+                alert('Error submitting action. Check console for details.');
+            }
+        }
+        
+        // Load initial ticket
+        loadTicket();
+    </script>
+</body>
+</html>
