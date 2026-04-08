@@ -1,7 +1,8 @@
 [project]
 name = "support-agent-env"
 version = "1.0.0"
-description = "OpenEnv customer support environment"
+description = "OpenEnv customer support environment for AI agents"
+readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.104.0",
@@ -9,6 +10,7 @@ dependencies = [
     "pydantic>=2.4.0",
     "openai>=1.0.0",
     "aiohttp>=3.9.0",
+    "python-multipart>=0.0.6",
     "openenv-core>=0.2.0",
 ]
 
@@ -16,5 +18,5 @@ dependencies = [
 support-agent-env = "server.app:main"
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
