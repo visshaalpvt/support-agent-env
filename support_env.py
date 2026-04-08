@@ -104,13 +104,13 @@ class SupportAgentEnv:
             }
         }
         
-        # Determine classification score based on difficulty
+        # Determine classification score based on difficulty (matches grader partial credit)
         if self.current_task_difficulty == "easy":
-            c_score = score
+            c_score = score  # already 0.95 or 0.15 from grade_easy
         elif self.current_task_difficulty == "medium":
-            c_score = 0.5 if agent_category == ground_truth_category else 0.0
-        else: # hard
-            c_score = 0.3 if agent_category == ground_truth_category else 0.0
+            c_score = 0.45 if agent_category == ground_truth_category else 0.10
+        else:  # hard
+            c_score = 0.28 if agent_category == ground_truth_category else 0.07
 
         reward_obj = SupportReward(
             total=score,

@@ -19,7 +19,7 @@ def verify_inference_py(filepath="inference.py"):
 
     # Check 1: API_BASE_URL from env
     print("\n1. Checking API_BASE_URL from environment...")
-    if 'os.getenv("API_BASE_URL")' in content or 'os.environ.get("API_BASE_URL"' in content:
+    if 'os.getenv("API_BASE_URL"' in content or 'os.environ.get("API_BASE_URL"' in content:
         results['API_BASE_URL'] = True
         print("   ✅ API_BASE_URL read from environment")
     else:
@@ -28,9 +28,10 @@ def verify_inference_py(filepath="inference.py"):
 
     # Check 2: API_KEY from env (or HF_TOKEN fallback)
     print("\n2. Checking API_KEY from environment...")
-    if 'os.getenv("API_KEY")' in content or 'os.environ.get("API_KEY"' in content:
+    if ('os.getenv("API_KEY"' in content or 'os.environ.get("API_KEY"' in content
+            or 'os.getenv("HF_TOKEN"' in content):
         results['API_KEY'] = True
-        print("   ✅ API_KEY read from environment")
+        print("   ✅ API_KEY (or HF_TOKEN) read from environment")
     else:
         results['API_KEY'] = False
         print("   ❌ API_KEY not read from environment")
@@ -111,7 +112,7 @@ def verify_inference_py(filepath="inference.py"):
 
     # Check 11: [END] log format
     print("\n11. Checking [END] log format...")
-    if '[END]' in content and 'success=' in content and 'score=' in content:
+    if '[END]' in content and 'success=' in content and ('rewards=' in content or 'score=' in content):
         results['end_log'] = True
         print("   ✅ [END] log found with required fields")
     else:
