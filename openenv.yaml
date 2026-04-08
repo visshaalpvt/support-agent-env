@@ -1,50 +1,50 @@
 name: support-agent-env
-version: 1.0.0
-description: Customer support environment for training AI agents
+description: Customer support environment for AI agents
+version: "1.0.0"
+author: visshaalpvt
+
+observation_space:
+  type: text
+  description: Customer ticket with issue description
+
+action_space:
+  type: discrete
+  actions:
+    - delivery
+    - billing
+    - technical
+    - account
+    - general
+  description: Classification category
+
+endpoints:
+  health: /health
+  reset: /reset
+  step: /step
+  state: /state
 
 tasks:
   - id: easy
-    name: Easy Task
     description: Classify the ticket category
-    max_steps: 1
-    difficulty: easy
+    steps: 1
+    ideal_action: delivery
+
   - id: medium
-    name: Medium Task
     description: Classify category and detect priority
-    max_steps: 1
-    difficulty: medium
+    steps: 1
+    ideal_action: delivery
+
   - id: hard
-    name: Hard Task
     description: Classify, prioritize, and respond
-    max_steps: 1
-    difficulty: hard
+    steps: 1
+    ideal_action: delivery
 
-actions:
-  category:
-    type: string
-    required: true
-    enum: ["delivery", "billing", "technical", "account", "general"]
-  priority:
-    type: string
-    required: false
-    enum: ["low", "medium", "high", "urgent"]
-  response_text:
-    type: string
-    required: false
+scoring:
+  reward_range: [0.01, 0.99]
+  success_threshold: 0.5
+  score_formula: mean(step_rewards)
 
-observations:
-  ticket_id:
-    type: string
-  customer_message:
-    type: string
-  task_difficulty:
-    type: string
-  step_number:
-    type: integer
-  done:
-    type: boolean
-
-rewards:
-  range: [0.01, 0.99]
-  partial_credit: true
-  clip_fn: clamp_score
+constraints:
+  max_runtime_seconds: 1200
+  max_memory_gb: 8
+  max_vcpu: 2
