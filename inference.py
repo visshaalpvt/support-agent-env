@@ -31,23 +31,8 @@ import math
 import os
 import sys
 
-# ============================================================
-# SCORE CLIPPING — Phase 2 requires strictly (0, 1)
-# Defined here first so it's available even if graders import fails
-# ============================================================
-
-def clip_score(score, min_val=0.01, max_val=0.99):
-    """
-    Clips any score to the safe range [0.01, 0.99].
-    Handles None, NaN, Inf, negatives, and boundary values.
-    """
-    try:
-        score = float(score)
-        if math.isnan(score) or math.isinf(score):
-            return min_val
-        return max(min_val, min(max_val, score))
-    except (TypeError, ValueError):
-        return min_val
+# Using clip_score from safe_grader
+from safe_grader import clip_score
 
 
 # ============================================================
