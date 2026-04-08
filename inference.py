@@ -11,14 +11,14 @@ def clip_score(x):
     """Clip score to strictly between 0 and 1 (0.01 to 0.99)"""
     try:
         val = float(x)
-        if math.isnan(val): return 0.01
-        if val <= 0.011:
-            return 0.01
-        if val >= 0.99:
-            return 0.99
-        return val
-    except:
+    except Exception:
         return 0.01
+    if val <= 0.0:
+        return 0.01
+    if val >= 1.0:
+        return 0.99
+    # Backup guard
+    return max(0.01, min(0.99, val))
 
 # ============================================
 # COMPLIANCE: Mandatory Env Vars (Bug #3)
@@ -94,7 +94,7 @@ async def get_action_llm(messages, max_tokens=10):
 # ============================================
 async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
     task_name = f"support-{difficulty}"
-    raw_reward = 0.01111
+    raw_reward = 0.01
     step_count = 0
     action_str = "none"
     done = False
@@ -162,7 +162,7 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
     except Exception as e:
         last_error = str(e)
         step_count = 1
-        raw_reward = 0.01111
+        raw_reward = 0.01
         print(f"[STEP] step={step_count} action=error reward=0.011 done=false error={last_error}", flush=True)
     
     finally:

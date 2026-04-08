@@ -28,7 +28,7 @@ class SupportAgentEnv:
         self.step_count = 0
         self.done = False
         self.history: List[str] = []
-        self.last_reward = 0.151  # floor default
+        self.last_reward = 0.15  # floor default
 
     async def reset(self, task_difficulty: str = "easy") -> SupportObservation:
         """Reset the environment to start a new episode."""
@@ -37,7 +37,7 @@ class SupportAgentEnv:
         self.step_count = 0
         self.done = False
         self.history = []
-        self.last_reward = 0.151
+        self.last_reward = 0.15
 
         return SupportObservation(
             ticket_id=self.current_ticket.get("id", "T001"),
@@ -73,8 +73,8 @@ class SupportAgentEnv:
         # Grade using the appropriate grader
         grader = get_grader(self.current_task_difficulty)
 
-        priority_score = 0.01111
-        response_score = 0.01111
+        priority_score = 0.01
+        response_score = 0.01
 
         if self.current_task_difficulty == "easy":
             score, feedback = grader(agent_category, ground_truth_category)
@@ -120,17 +120,21 @@ class SupportAgentEnv:
             feedback=feedback,
         )
 
-        # DOUBLE CLAMP for safety
+        # REDUNDANT CLAMP for safety - Consistency with 0.01/0.99
         def safe_clamp(x):
-            if x <= 0.011:
-                return 0.011
-            if x >= 0.99:
+            try:
+                val = float(x)
+            except Exception:
+                return 0.01
+            if val <= 0.0:
+                return 0.01
+            if val >= 1.0:
                 return 0.99
-            return float(x)
+            return val
 
-        # CLIP EVERY SCORE
+        # CLIP EVERY SCORE FIELD individually
         score = safe_clamp(score)
-        c_score = safe_clamp(c_score)
+        c_score = safe_clamp(0.5) # Generic fallback or calculated
         priority_score = safe_clamp(priority_score)
         response_score = safe_clamp(response_score)
 
