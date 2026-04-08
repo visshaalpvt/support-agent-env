@@ -2,87 +2,118 @@
 inference.py — SupportAgentEnv Inference Script
 Meta PyTorch OpenEnv Hackathon — Phase 2 Submission
 
+FIXES APPLIED (all 4 Phase 2 errors addressed):
+  Fix 1: Client init wrapped in try/except Exception (not just ImportError)
+  Fix 2: API_BASE_URL has NO default — MUST come from evaluator's env
+  Fix 3: Every score/reward output uses clip_score()
+  Fix 4: All LLM calls route through the evaluator's LiteLLM proxy
+
 ENVIRONMENT VARIABLE CONTRACT:
-  API_KEY      — LiteLLM proxy key injected by the hackathon evaluator (REQUIRED)
-  HF_TOKEN     — Hugging Face token (REQUIRED per hackathon spec)
-  API_BASE_URL — LLM proxy base URL (optional, default: https://api.openai.com/v1)
+  API_KEY      — LiteLLM proxy key injected by the evaluator (REQUIRED)
+  API_BASE_URL — LLM proxy base URL injected by the evaluator (REQUIRED)
   MODEL_NAME   — Model to use (optional, default: gpt-4o-mini)
+  HF_TOKEN     — Hugging Face token (optional)
   SPACE_URL    — Target HF Space URL (optional, has default)
 
 OUTPUT CONTRACT (stdout only — no extra lines):
   [START] task=<name> env=SupportAgentEnv model=<model>
   [STEP]  step=<n> action=<action> reward=<0.00> done=<true|false> error=<null|msg>
-  [END]   success=<true|false> reward=<0.00>
+  [END]   success=<true|false> rewards=<0.00>
 
 [END] is ALWAYS printed via finally block, even if an exception occurs.
 All booleans are lowercase. All rewards are formatted to exactly 2 decimal places.
+All diagnostic logging goes to stderr ONLY — never stdout.
 """
 
 import asyncio
 import json
+import math
 import os
 import sys
 
-# clip_score — shared Phase 2 safety net (also used in graders.py)
-try:
-    from graders import clip_score
-except ImportError:
-    import math
-    def clip_score(score, min_val=0.01, max_val=0.99):
-        try:
-            score = float(score)
-            if math.isnan(score) or math.isinf(score):
-                return min_val
-            return max(min_val, min(max_val, score))
-        except (TypeError, ValueError):
+# ============================================================
+# SCORE CLIPPING — Phase 2 requires strictly (0, 1)
+# Defined here first so it's available even if graders import fails
+# ============================================================
+
+def clip_score(score, min_val=0.01, max_val=0.99):
+    """
+    Clips any score to the safe range [0.01, 0.99].
+    Handles None, NaN, Inf, negatives, and boundary values.
+    """
+    try:
+        score = float(score)
+        if math.isnan(score) or math.isinf(score):
             return min_val
+        return max(min_val, min(max_val, score))
+    except (TypeError, ValueError):
+        return min_val
+
 
 # ============================================================
-# ENVIRONMENT VARIABLES — read from environment with defaults
+# ENVIRONMENT VARIABLES — read from evaluator's environment
 # ============================================================
-API_BASE_URL = os.environ.get("API_BASE_URL", "https://api.openai.com/v1")
+# API_BASE_URL: NO DEFAULT — must come from the evaluator's LiteLLM proxy
+# If missing, we warn and try to continue (the proxy should provide it)
+API_BASE_URL = os.environ.get("API_BASE_URL", "")
 MODEL_NAME   = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 API_KEY      = os.environ.get("API_KEY", "")
 HF_TOKEN     = os.environ.get("HF_TOKEN", "")
 SPACE_URL    = os.environ.get("SPACE_URL", "https://visshaalpvt-support-agent-env.hf.space")
 
 # ============================================================
-# VALIDATION — hard fail with [END] if required vars missing
+# VALIDATION — warn to stderr, fail gracefully with [END]
 # ============================================================
 if not API_KEY:
-    print("[END] success=false rewards=0.05", flush=True)
-    try:
-        raise ValueError(
-            "API_KEY environment variable is required. "
-            "This must be the LiteLLM proxy key provided by the hackathon evaluator."
-        )
-    except ValueError as _e:
-        sys.stderr.write(f"FATAL: {_e}\n")
+    sys.stderr.write(
+        "FATAL: API_KEY environment variable is not set. "
+        "This must be the LiteLLM proxy key provided by the hackathon evaluator.\n"
+    )
+    print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
     sys.exit(1)
 
-if not HF_TOKEN:
-    # HF_TOKEN is not needed for the evaluation call itself — warn but continue
+if not API_BASE_URL:
     sys.stderr.write(
-        "WARNING: HF_TOKEN not set — operating without Hugging Face token.\n"
+        "WARNING: API_BASE_URL not set — this is REQUIRED for proxy routing. "
+        "Trying with empty base_url, which may cause the openai client "
+        "to use its default endpoint.\n"
     )
+    # Don't crash — let the client try; the evaluator may set it late
+    # But DO NOT default to api.openai.com — that bypasses the proxy
+
+if not HF_TOKEN:
+    sys.stderr.write("WARNING: HF_TOKEN not set — operating without HF token.\n")
 
 # ============================================================
-# OPENAI CLIENT — MUST use API_KEY (not HF_TOKEN) so that
-# all calls route through the evaluator's LiteLLM proxy.
+# OPENAI CLIENT — initialized inside try/except Exception
+# (not just ImportError) so ANY init failure is caught
 # ============================================================
+client = None  # declare at module level
+
 try:
     from openai import AsyncOpenAI
-    client = AsyncOpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    client = AsyncOpenAI(
+        base_url=API_BASE_URL if API_BASE_URL else None,
+        api_key=API_KEY,
+        timeout=30.0,
+        max_retries=3,
+    )
+    sys.stderr.write(f"INFO: OpenAI client initialized. base_url={API_BASE_URL or '(default)'}\n")
 except ImportError:
-    print("[END] success=false reward=0.05", flush=True)
     sys.stderr.write("FATAL: openai package not installed.\n")
+    print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
+    sys.exit(1)
+except Exception as e:
+    # FIX for Error 1: catch ALL exceptions during client init
+    sys.stderr.write(f"FATAL: AsyncOpenAI client init failed: {e}\n")
+    print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
     sys.exit(1)
 
 try:
     import aiohttp
 except ImportError:
-    print("[END] success=false reward=0.05", flush=True)
     sys.stderr.write("FATAL: aiohttp package not installed.\n")
+    print(f"[END] success=false rewards={clip_score(0.05):.2f}", flush=True)
     sys.exit(1)
 
 # ============================================================
@@ -124,7 +155,7 @@ def extract_priority(raw_text: str) -> str:
 
 
 # ============================================================
-# LLM INFERENCE — all calls through the OpenAI client
+# LLM INFERENCE — all calls through the evaluator's proxy
 # ============================================================
 
 async def classify_ticket(ticket_text: str) -> str:
@@ -248,9 +279,9 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
     Run one episode for the given difficulty.
     Emits: [START] -> [STEP] -> [END]
     [END] is ALWAYS emitted via the finally block.
-    Returns: the episode reward (float).
+    Returns: the episode reward (float), always clipped to (0.01, 0.99).
     """
-    reward: float = 0.15
+    reward: float = clip_score(0.15)
     success: bool = False
     step_count: int = 0
     action_str: str = "none"
@@ -277,7 +308,7 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
 
         ticket_text = ticket.get("ticket_text", "")
 
-        # ── LLM INFERENCE ──────────────────────────────────────
+        # ── LLM INFERENCE (all calls go through the proxy) ─────
         category = await classify_ticket(ticket_text)
 
         priority = ""
@@ -333,11 +364,14 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
 
     except Exception as e:
         step_count = max(step_count, 1)
-        reward     = 0.15
+        reward     = clip_score(0.15)  # clipped fallback
         success    = False
         last_error = repr(e)
 
     finally:
+        # Ensure reward is ALWAYS clipped before printing
+        reward = clip_score(reward)
+
         # [STEP] — emitted inside finally so it always prints
         print(
             f"[STEP] step={step_count} action={action_str} reward={reward:.2f} "
@@ -345,7 +379,6 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
             flush=True,
         )
         # [END] — always last, always printed
-        # rewards= (plural) matches verify_inference.py check 13
         print(
             f"[END] success={'true' if success else 'false'} rewards={reward:.2f}",
             flush=True,
