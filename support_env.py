@@ -3,7 +3,7 @@ import random
 import json
 from typing import Dict, Any, Optional, List
 from schema import SupportObservation, SupportActionResult, SupportState, SupportReward
-from graders import get_grader
+from safe_grader import get_grader
 
 class SupportAgentEnv:
     def __init__(self, tickets_file: str = "tickets.json"):
