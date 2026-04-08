@@ -8,9 +8,9 @@ SPACE_URL = "https://visshaalpvt-support-agent-env.hf.space"
 def clip(x):
     try:
         val = float(x)
-        return max(0.05, min(0.95, val))
+        return max(0.01, min(0.99, val))
     except (ValueError, TypeError):
-        return 0.05
+        return 0.01
 
 async def main():
     print('[START] task=support-agent-env env=SupportAgentEnv model=simple', flush=True)
@@ -27,7 +27,7 @@ async def main():
             payload = {"category": "delivery", "priority": "medium", "response_text": "I will help you."}
             async with session.post(f"{SPACE_URL}/step", json=payload) as resp:
                 data = await resp.json()
-                raw_reward = data.get("reward", {}).get("total", 0.05)
+                raw_reward = data.get("reward", {}).get("total", 0.01)
                 reward = clip(raw_reward)
                 all_rewards.append(f"{reward:.2f}")
                 

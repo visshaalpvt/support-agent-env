@@ -14,6 +14,6 @@ tasks:
     max_steps: 1
 
 rewards:
-  range: [0.05, 0.95]
+  range: [0.01, 0.99]
   partial_credit: true
-  clip_fn: clip_score
+  clip_fn: clamp_score

@@ -1,104 +1,111 @@
-import sys
 import math
 
-# VERSION: 2026-04-08-DEFINITIVE-STRUCT-V5
+# VERSION: 2026-04-08-DEFINITIVE-STRUCT-V6
 
-MIN_SCORE = 0.05
-MAX_SCORE = 0.95
-
-def clip_score(score):
-    """Ensure score is strictly between 0 and 1 (never 0.0 or 1.0)."""
+def clamp_score(x):
+    """OpenEnv requirement: scores must be strictly in (0.0, 1.0)"""
     try:
-        val = float(score)
-    except Exception:
-        return MIN_SCORE
+        val = float(x)
+    except (ValueError, TypeError):
+        return 0.01
 
     if math.isnan(val) or math.isinf(val):
-        return MIN_SCORE
+        return 0.01
 
-    # Strictly clamp to (0.05, 0.95)
-    return max(MIN_SCORE, min(MAX_SCORE, val))
+    if val <= 0.0:
+        return 0.01
+    if val >= 1.0:
+        return 0.99
+    return round(val, 3)
 
-# Alias
-clamp_score = clip_score
+# Alias for compatibility
+clip_score = clamp_score
 
 # ============================================
 # GRADE_EPISODE — Required by Meta validator
 # ============================================
 def grade_episode(total_reward, steps, num_sensors):
-    """
-    Universal entry point called by Meta validator.
-    Maps total_reward (cumulative) → final score in (0.001, 0.999).
-    Since our environment returns normalized rewards (0-1) per step,
-    and all tasks are 1 step, we just return the clipped reward.
-    """
     if steps <= 0:
-        return MIN_SCORE  # safe default for edge cases
-
-    # In our multi-task env, total_reward is already the normalized score (0.001 to 0.999)
-    # for a single-step episode.
-    return clip_score(total_reward)
+        return 0.01
+    return clamp_score(total_reward)
 
 # ============================================
 # EASY GRADER
 # ============================================
 def grade_easy(agent_category, ground_truth_category):
-    agent_category = (agent_category or "").strip().lower()
-    ground_truth_category = (ground_truth_category or "").strip().lower()
-    cat_score = clip_score(0.95 if agent_category == ground_truth_category else 0.05)
-    final_score = clip_score(cat_score)
-    return final_score, f"[EASY] total={final_score:.4f}", cat_score, MIN_SCORE, MIN_SCORE
+    if agent_category == ground_truth_category:
+        raw_score = 1.0
+        feedback = f"[EASY] Category '{agent_category}' is CORRECT."
+    else:
+        raw_score = 0.0
+        feedback = f"[EASY] Category '{agent_category}' is WRONG (expected '{ground_truth_category}')."
+    
+    final_score = clamp_score(raw_score)
+    return final_score, feedback, final_score, 0.01, 0.01
 
 # ============================================
 # MEDIUM GRADER
 # ============================================
 def grade_medium(agent_category, ground_truth_category, agent_priority, ground_truth_priority):
-    agent_category = (agent_category or "").strip().lower()
-    ground_truth_category = (ground_truth_category or "").strip().lower()
-    agent_priority = (agent_priority or "").strip().lower()
-    ground_truth_priority = (ground_truth_priority or "").strip().lower()
-    cat_score = clip_score(0.45 if agent_category == ground_truth_category else 0.05)
+    category_score = 0.5 if agent_category == ground_truth_category else 0.0
+    
     priority_ranking = {"urgent": 4, "high": 3, "medium": 2, "low": 1}
-    ap = priority_ranking.get(agent_priority, 0)
-    tp = priority_ranking.get(ground_truth_priority, 0)
+    agent_level = priority_ranking.get(agent_priority, 0)
+    truth_level = priority_ranking.get(ground_truth_priority, 0)
+    
     if agent_priority == ground_truth_priority:
-        pri_raw = 0.45
-    elif abs(ap - tp) == 1:
-        pri_raw = 0.20
+        priority_score = 0.5
+    elif agent_level == truth_level - 1:
+        priority_score = 0.25
+    elif agent_level == truth_level + 1:
+        priority_score = 0.15
     else:
-        pri_raw = 0.05
-    pri_score = clip_score(pri_raw)
-    final_score = clip_score(cat_score + pri_score)
-    return final_score, f"[MEDIUM] total={final_score:.4f}", cat_score, pri_score, MIN_SCORE
+        priority_score = 0.0
+    
+    raw_score = category_score + priority_score
+    final_score = clamp_score(raw_score)
+    
+    fb = f"[MEDIUM] Cat={agent_category}, Pri={agent_priority} | Score={final_score}"
+    return final_score, fb, clamp_score(category_score), clamp_score(priority_score), 0.01
 
 # ============================================
 # HARD GRADER
 # ============================================
 def grade_hard(agent_category, ground_truth_category, agent_priority, ground_truth_priority, agent_response, keywords):
-    agent_category = (agent_category or "").strip().lower()
-    ground_truth_category = (ground_truth_category or "").strip().lower()
-    agent_priority = (agent_priority or "").strip().lower()
-    ground_truth_priority = (ground_truth_priority or "").strip().lower()
-    agent_response = (agent_response or "").strip().lower()
-    cat_score = clip_score(0.40 if agent_category == ground_truth_category else 0.05)
+    category_score = 0.3 if agent_category == ground_truth_category else 0.0
+    
     priority_ranking = {"urgent": 4, "high": 3, "medium": 2, "low": 1}
-    ap = priority_ranking.get(agent_priority, 0)
-    tp = priority_ranking.get(ground_truth_priority, 0)
+    agent_level = priority_ranking.get(agent_priority, 0)
+    truth_level = priority_ranking.get(ground_truth_priority, 0)
+    
     if agent_priority == ground_truth_priority:
-        pri_raw = 0.35
-    elif abs(ap - tp) == 1:
-        pri_raw = 0.15
+        priority_score = 0.3
+    elif agent_level == truth_level - 1:
+        priority_score = 0.15
+    elif agent_level == truth_level + 1:
+        priority_score = 0.1
     else:
-        pri_raw = 0.05
-    pri_score = clip_score(pri_raw)
-    if keywords:
-        hits = sum(1 for kw in keywords if kw.lower() in agent_response)
-        resp_raw = 0.10 + 0.20 * (hits / len(keywords))
-    else:
-        resp_raw = 0.15 if len(agent_response) > 20 else 0.05
-    resp_score = clip_score(resp_raw)
-    final_score = clip_score(cat_score + pri_score + resp_score)
-    return final_score, f"[HARD] total={final_score:.4f}", cat_score, pri_score, resp_score
+        priority_score = 0.0
+    
+    response_score = 0.0
+    if agent_response and len(agent_response.strip()) > 5:
+        lower = agent_response.lower()
+        if any(w in lower for w in ["sorry", "apologize"]):
+            response_score += 0.2
+        if keywords:
+            matches = sum(1 for kw in keywords if kw.lower() in lower)
+            response_score += min(matches / len(keywords), 0.2)
+    
+    raw_score = category_score + priority_score + response_score
+    final_score = clamp_score(raw_score)
+    
+    fb = f"[HARD] total={final_score}"
+    return final_score, fb, clamp_score(category_score), clamp_score(priority_score), clamp_score(response_score)
 
-def get_grader(difficulty: str):
-    return {"easy": grade_easy, "medium": grade_medium, "hard": grade_hard}.get(difficulty, grade_easy)
+def get_grader(difficulty):
+    if difficulty == "easy":
+        return grade_easy
+    elif difficulty == "medium":
+        return grade_medium
+    else:
+        return grade_hard
