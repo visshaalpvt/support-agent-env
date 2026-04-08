@@ -15,7 +15,7 @@ import random
 import json
 from typing import Dict, Any, Optional, List
 from schema import SupportObservation, SupportActionResult, SupportState, SupportReward
-from safe_grader import get_grader
+from tasks.grader import get_grader
 
 
 class SupportAgentEnv:
