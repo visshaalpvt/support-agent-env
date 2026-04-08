@@ -1,3 +1,13 @@
+---
+title: SupportAgentEnv
+emoji: 🎧
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # SupportAgentEnv — Meta PyTorch OpenEnv Hackathon
 
 [![Hugging Face Space](https://img.shields.io/badge/🤗%20HF%20Space-Running-green)](https://huggingface.co/spaces/visshaalpvt/support-agent-env)
