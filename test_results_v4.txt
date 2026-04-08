@@ -1,0 +1,29 @@
+LOADING ULTRA-SAFE GRADER - FORCED RANGE (0.01, 0.99)
+
+======================================================================
+  VALIDATOR FIX TEST SUITE
+======================================================================
+  [PASS]: Clip Score Function
+  [FAIL]: No Binary Returns
+        inference.py:97 -> raw_reward = 0.0
+        inference.py:165 -> raw_reward = 0.0
+        safe_grader.py:27 -> return clamp_score(1.0), f"[EASY] Category '{agent_category}' is CORRECT. Score: classification=1.0 | total=1.0"
+  [PASS]: No safe_grader Import
+  [PASS]: clip_score Defined
+  [PASS]: API_BASE_URL
+  [PASS]: [END] Format
+  [FAIL]: Grader Ranges
+        cannot import name '_category_distance' from 'support_env' (C:\Users\LENOVO\Downloads\metahack\support-agent-env\support_env.py)
+  [FAIL]: No Binary Scores in Grader
+        safe_grader.py:27 -> return clamp_score(1.0), f"[EASY] Category '{agent_category}' is CORRECT. Score: classification=1.0 | total=1.0"
+        safe_grader.py:32 -> return clamp_score(0.0), f"[EASY] Category '{agent_category}' is WRONG (expected '{ground_truth_category}'). Score: classification=0.0 | total=0.0"
+        safe_grader.py:53 -> priority_score = 0.0
+  [PASS]: Exception Handlers
+  [PASS]: Score Aggregation
+
+======================================================================
+  TEST SUMMARY
+======================================================================
+
+  Passed: 7
+  Failed: 3

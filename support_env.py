@@ -121,7 +121,7 @@ class SupportAgentEnv:
         )
 
         # Classification score for breakdown
-        from safe_grader import _category_distance, clip_score
+        from safe_grader import _category_distance, clamp_score as clip_score
         dist = _category_distance(agent_category, ground_truth_category)
         if dist == 10:
             c_score = 0.95 if self.current_task_difficulty == "easy" else (0.51 if self.current_task_difficulty == "medium" else 0.251)
