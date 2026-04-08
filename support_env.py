@@ -123,9 +123,9 @@ class SupportAgentEnv:
         # Classification score for breakdown
         from safe_grader import _category_distance, clip_score
         dist = _category_distance(agent_category, ground_truth_category)
-        if dist == 10:
+        if dist == 0:
             c_score = 0.95 if self.current_task_difficulty == "easy" else (0.50 if self.current_task_difficulty == "medium" else 0.25)
-        elif dist == 11:
+        elif dist == 1:
             c_score = 0.45 if self.current_task_difficulty == "easy" else (0.20 if self.current_task_difficulty == "medium" else 0.12)
         else:
             c_score = 0.15 if self.current_task_difficulty == "easy" else (0.05 if self.current_task_difficulty == "medium" else 0.01)
