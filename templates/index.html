@@ -1,160 +1,476 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>SupportAgentEnv - Customer Support Training</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupportAgentEnv - Customer Support AI Training</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
+            padding: 20px;
         }
+
         .container {
-            background: white;
-            border-radius: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
             padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
         }
-        h1 {
-            color: #333;
-            margin-top: 0;
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .badge {
+
+        .status-badge {
             display: inline-block;
             padding: 5px 15px;
+            background: #10b981;
+            color: white;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: bold;
-            margin-right: 10px;
+            margin-top: 10px;
         }
-        .badge-easy { background: #4CAF50; color: white; }
-        .badge-medium { background: #FF9800; color: white; }
-        .badge-hard { background: #f44336; color: white; }
-        .ticket {
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 5px solid #667eea;
-        }
-        select, textarea, button {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        button:hover {
-            background: #5a67d8;
-        }
-        .score {
-            text-align: center;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .score-high { background: #4CAF50; color: white; }
-        .score-mid { background: #FF9800; color: white; }
-        .score-low { background: #f44336; color: white; }
-        .feedback {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-family: monospace;
-        }
+
         .difficulty-container {
             display: flex;
-            gap: 10px;
-            margin: 20px 0;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
+
         .difficulty-btn {
-            flex: 1;
-            text-align: center;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .difficulty-btn.easy {
+            background: #10b981;
+            color: white;
+        }
+        .difficulty-btn.medium {
+            background: #f59e0b;
+            color: white;
+        }
+        .difficulty-btn.hard {
+            background: #ef4444;
+            color: white;
         }
         .difficulty-btn.active {
-            transform: scale(1.02);
-            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .ticket-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+            border-left: 5px solid #667eea;
+        }
+
+        .ticket-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #f1f5f9;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+        }
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        .score-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 12px;
+        }
+
+        .ticket-id {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
+        .ai-suggestion {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 12px;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .quality-indicators {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .indicator {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .indicator.good {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        .indicator.bad {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .test-suite {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🤖 SupportAgentEnv</h1>
-        <p>OpenEnv Customer Support Training & Evaluation Dashboard</p>
-        
+        <div class="header">
+            <h1>🤖 SupportAgentEnv</h1>
+            <p>OpenEnv Customer Support Training & Evaluation Dashboard</p>
+            <div class="status-badge" id="apiStatus">🟢 API Connected</div>
+        </div>
+
         <div class="difficulty-container">
-            <button class="badge-easy difficulty-btn" data-diff="easy">🟢 Easy<br><small>Classification Only</small></button>
-            <button class="badge-medium difficulty-btn" data-diff="medium">🟡 Medium<br><small>+ Priority</small></button>
-            <button class="badge-hard difficulty-btn" data-diff="hard">🔴 Hard<br><small>+ Written Response</small></button>
+            <button class="difficulty-btn easy active" data-diff="easy">🟢 Easy (Classification Only)</button>
+            <button class="difficulty-btn medium" data-diff="medium">🟡 Medium (+ Priority)</button>
+            <button class="difficulty-btn hard" data-diff="hard">🔴 Hard (+ Response)</button>
         </div>
-        
-        <div class="ticket">
-            <h3>📧 CURRENT TICKET</h3>
-            <div id="ticketText">Click "Load Ticket" to start</div>
-            <div id="ticketId" style="font-size: 12px; color: #666; margin-top: 10px;"></div>
-            <button id="loadBtn" style="margin-top: 15px; background: #6c757d;">🔄 Load Random Ticket</button>
+
+        <div class="card ticket-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <h3>📧 CURRENT TICKET</h3>
+                <button id="loadTicketBtn" class="btn btn-secondary btn-sm">🔄 Load Random Ticket</button>
+            </div>
+            <div class="ticket-text" id="ticketText">
+                Click "Load Random Ticket" to start
+            </div>
+            <div class="ticket-id" id="ticketId"></div>
+            <div class="ai-suggestion" id="aiSuggestion">
+                🤖 AI Suggests: <span id="suggestedCategory">-</span> | <span id="suggestedPriority">-</span>
+            </div>
         </div>
-        
-        <div>
+
+        <div class="card">
             <h3>✍️ AGENT ACTION</h3>
-            <select id="category">
-                <option value="">Select Category...</option>
-                <option value="delivery">🚚 Delivery Issue</option>
-                <option value="billing">💰 Billing Problem</option>
-                <option value="technical">🐛 Technical Bug</option>
-                <option value="account">🔐 Account Access</option>
-                <option value="general">❓ General Inquiry</option>
-            </select>
             
-            <select id="priority">
-                <option value="">Select Priority...</option>
-                <option value="low">🟢 Low</option>
-                <option value="medium">🟡 Medium</option>
-                <option value="high">🟠 High</option>
-                <option value="urgent">🔴 Urgent</option>
-            </select>
-            
-            <textarea id="response" rows="4" placeholder="Type your customer response here..."></textarea>
-            
-            <button id="submitBtn">📤 Submit Action</button>
+            <div class="form-group">
+                <label>📂 Category *</label>
+                <select id="category">
+                    <option value="">Select Category...</option>
+                    <option value="delivery">🚚 Delivery Issue</option>
+                    <option value="billing">💰 Billing Problem</option>
+                    <option value="technical">🐛 Technical Bug</option>
+                    <option value="account">🔐 Account Access</option>
+                    <option value="general">❓ General Inquiry</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>⚡ Priority *</label>
+                <select id="priority">
+                    <option value="">Select Priority...</option>
+                    <option value="low">🟢 Low</option>
+                    <option value="medium">🟡 Medium</option>
+                    <option value="high">🟠 High</option>
+                    <option value="urgent">🔴 Urgent</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>💬 Response</label>
+                <textarea id="response" rows="4" placeholder="Type your customer response here..."></textarea>
+                <div class="button-group">
+                    <button id="generateGoodBtn" class="btn btn-success btn-sm">✨ Generate Good Response</button>
+                    <button id="generateWrongBtn" class="btn btn-warning btn-sm">⚠️ Generate Wrong Response</button>
+                    <button id="copyResponseBtn" class="btn btn-secondary btn-sm">📋 Copy</button>
+                    <button id="clearResponseBtn" class="btn btn-secondary btn-sm">🗑️ Clear</button>
+                </div>
+                <div class="quality-indicators" id="qualityIndicators">
+                    <span class="indicator" id="empathyIndicator">❤️ No empathy</span>
+                    <span class="indicator" id="lengthIndicator">📏 Too short</span>
+                    <span class="indicator" id="actionIndicator">⚡ No action words</span>
+                </div>
+            </div>
+
+            <button id="submitBtn" class="btn btn-primary">📤 Submit Action</button>
+
+            <div class="test-suite">
+                <button id="testPerfectBtn" class="btn btn-success btn-sm">🟢 Perfect</button>
+                <button id="testWrongCategoryBtn" class="btn btn-warning btn-sm">🟡 Wrong Category</button>
+                <button id="testWrongPriorityBtn" class="btn btn-warning btn-sm">🟠 Wrong Priority</button>
+                <button id="testBadResponseBtn" class="btn btn-danger btn-sm">🔴 Bad Response</button>
+                <button id="testEmptyBtn" class="btn btn-secondary btn-sm">⚪ Empty</button>
+            </div>
         </div>
-        
-        <div id="result" style="display: none;">
-            <div class="score" id="scoreDisplay">0.00</div>
-            <div class="feedback" id="feedbackDisplay"></div>
+
+        <div class="card score-card" id="resultCard" style="display: none;">
+            <div class="score-value" id="scoreValue">0.00</div>
+            <div class="score-label">/ 1.00</div>
+            <div class="feedback" id="feedbackText"></div>
+        </div>
+
+        <div class="card">
+            <h4>📜 Submission History</h4>
+            <div id="historyList" class="history-list">
+                <div style="color: #64748b; text-align: center; padding: 20px;">No submissions yet</div>
+            </div>
         </div>
     </div>
-    
+
     <script>
         const API_URL = "https://visshaalpvt-support-agent-env.hf.space";
         let currentDifficulty = "easy";
         let currentTicket = null;
-        
-        document.querySelectorAll('.difficulty-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentDifficulty = btn.dataset.diff;
-                loadTicket();
-            });
-        });
-        
-        document.getElementById('loadBtn').addEventListener('click', loadTicket);
-        document.getElementById('submitBtn').addEventListener('click', submitAction);
-        
+        let history = [];
+
+        const goodResponses = {
+            "delivery": [
+                "I sincerely apologize that your order hasn't arrived. Let me immediately track your package and provide you with an update within 2 hours.",
+                "I understand how frustrating it is to wait for your delivery. I've escalated this to our shipping team and will notify you as soon as I have an update."
+            ],
+            "billing": [
+                "I apologize for the unexpected charge on your account. Let me review your billing history immediately and process any necessary refund.",
+                "I understand your concern about the billing issue. I've escalated this to our finance team and will personally ensure this gets resolved."
+            ],
+            "technical": [
+                "I apologize for the technical issue you're experiencing. Our engineering team has been notified and is actively working on a fix.",
+                "I understand how disruptive this bug is. I've created a high-priority ticket and will update you as soon as it's resolved."
+            ],
+            "account": [
+                "I apologize for the trouble with your account access. Let me help you reset your password and restore access immediately.",
+                "I understand how concerning this is. I've escalated your account issue to our security team for immediate review."
+            ],
+            "general": [
+                "Thank you for reaching out. I'd be happy to help with your question. Let me research this and get back to you shortly.",
+                "I appreciate your patience. I've noted your request and will provide a detailed answer shortly."
+            ]
+        };
+
+        const wrongResponses = {
+            "short": ["No.", "K", "Ok", "Whatever", "IDK", "Not my problem"],
+            "rude": ["That's your fault", "I don't care", "Read the docs", "Stop complaining"],
+            "irrelevant": ["I like pizza", "The weather is nice", "What's your favorite color?"],
+            "no_empathy": ["Reset your password", "Check your email", "Restart the app", "Contact support"]
+        };
+
+        function detectCategoryFromTicket(ticketText) {
+            const lower = ticketText.toLowerCase();
+            if (lower.includes('order') || lower.includes('delivery') || lower.includes('shipping') || lower.includes('package')) return 'delivery';
+            if (lower.includes('charge') || lower.includes('billing') || lower.includes('payment') || lower.includes('refund')) return 'billing';
+            if (lower.includes('crash') || lower.includes('bug') || lower.includes('error') || lower.includes('app')) return 'technical';
+            if (lower.includes('password') || lower.includes('login') || lower.includes('account') || lower.includes('access')) return 'account';
+            return 'general';
+        }
+
+        function detectPriorityFromTicket(ticketText) {
+            const lower = ticketText.toLowerCase();
+            if (lower.includes('urgent') || lower.includes('emergency') || lower.includes('critical')) return 'urgent';
+            if (lower.includes('days') || lower.includes('waiting') || lower.includes('not working')) return 'high';
+            return 'medium';
+        }
+
+        function analyzeResponseQuality(response) {
+            if (!response || response.length < 5) return { empathy: false, length: false, action: false };
+            const lower = response.toLowerCase();
+            return {
+                empathy: lower.includes('sorry') || lower.includes('apologize'),
+                length: response.length > 20,
+                action: lower.includes('check') || lower.includes('track') || lower.includes('help') || lower.includes('fix')
+            };
+        }
+
+        function updateQualityIndicators() {
+            const response = document.getElementById('response').value;
+            const quality = analyzeResponseQuality(response);
+            
+            document.getElementById('empathyIndicator').textContent = quality.empathy ? '❤️ Has empathy ✅' : '❤️ No empathy ❌';
+            document.getElementById('empathyIndicator').className = quality.empathy ? 'indicator good' : 'indicator bad';
+            
+            document.getElementById('lengthIndicator').textContent = quality.length ? '📏 Good length ✅' : '📏 Too short ❌';
+            document.getElementById('lengthIndicator').className = quality.length ? 'indicator good' : 'indicator bad';
+            
+            document.getElementById('actionIndicator').textContent = quality.action ? '⚡ Has action words ✅' : '⚡ No action words ❌';
+            document.getElementById('actionIndicator').className = quality.action ? 'indicator good' : 'indicator bad';
+        }
+
+        function updateAISuggestion() {
+            if (currentTicket && currentTicket.ticket_text) {
+                const suggestedCat = detectCategoryFromTicket(currentTicket.ticket_text);
+                const suggestedPri = detectPriorityFromTicket(currentTicket.ticket_text);
+                document.getElementById('suggestedCategory').innerHTML = `<strong style="color: #10b981;">${suggestedCat}</strong> 👍`;
+                document.getElementById('suggestedPriority').innerHTML = `<strong style="color: #10b981;">${suggestedPri}</strong> 👍`;
+            }
+        }
+
+        function generateGoodResponse() {
+            if (!currentTicket || !currentTicket.ticket_text) { alert('Load a ticket first!'); return; }
+            const category = detectCategoryFromTicket(currentTicket.ticket_text);
+            const responses = goodResponses[category] || goodResponses['general'];
+            document.getElementById('response').value = responses[Math.floor(Math.random() * responses.length)];
+            updateQualityIndicators();
+        }
+
+        function generateWrongResponse() {
+            if (!currentTicket || !currentTicket.ticket_text) { alert('Load a ticket first!'); return; }
+            const allWrong = [...wrongResponses.short, ...wrongResponses.rude, ...wrongResponses.irrelevant, ...wrongResponses.no_empathy];
+            document.getElementById('response').value = allWrong[Math.floor(Math.random() * allWrong.length)];
+            updateQualityIndicators();
+        }
+
+        function copyResponse() {
+            const response = document.getElementById('response').value;
+            if (response) {
+                navigator.clipboard.writeText(response);
+                alert('Copied to clipboard!');
+            }
+        }
+
+        function clearResponse() {
+            document.getElementById('response').value = '';
+            updateQualityIndicators();
+        }
+
         async function loadTicket() {
             try {
                 const response = await fetch(`${API_URL}/reset`, {
@@ -164,25 +480,29 @@
                 });
                 currentTicket = await response.json();
                 document.getElementById('ticketText').innerHTML = `"${currentTicket.ticket_text}"`;
-                document.getElementById('ticketId').innerHTML = `Ticket ID: ${currentTicket.ticket_id} | Level: ${currentTicket.task_level}`;
-                document.getElementById('result').style.display = 'none';
-                document.getElementById('category').value = '';
-                document.getElementById('priority').value = '';
-                document.getElementById('response').value = '';
+                document.getElementById('ticketId').innerHTML = `Ticket ID: ${currentTicket.ticket_id} | Difficulty: ${currentTicket.task_level}`;
+                document.getElementById('category').value = "";
+                document.getElementById('priority').value = "";
+                document.getElementById('response').value = "";
+                document.getElementById('resultCard').style.display = 'none';
+                updateAISuggestion();
+                updateQualityIndicators();
             } catch (error) {
+                console.error('Error loading ticket:', error);
                 document.getElementById('ticketText').innerHTML = 'Error loading ticket. Make sure Space is running.';
             }
         }
-        
+
         async function submitAction() {
             const category = document.getElementById('category').value;
             const priority = document.getElementById('priority').value;
             const response = document.getElementById('response').value;
             
-            if (!category) {
-                alert('Please select a category!');
-                return;
-            }
+            if (!category) { alert('Please select a category!'); return; }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ Submitting...';
             
             try {
                 const res = await fetch(`${API_URL}/step`, {
@@ -194,18 +514,108 @@
                 const reward = data.reward?.total || 0;
                 const feedback = data.reward?.breakdown || '';
                 
-                document.getElementById('scoreDisplay').innerHTML = `${reward.toFixed(2)} / 1.00`;
-                document.getElementById('feedbackDisplay').innerHTML = feedback;
-                document.getElementById('result').style.display = 'block';
+                document.getElementById('scoreValue').innerHTML = reward.toFixed(2);
+                document.getElementById('feedbackText').innerHTML = feedback;
+                document.getElementById('resultCard').style.display = 'block';
                 
-                // Auto-load next ticket after 2 seconds
-                setTimeout(() => loadTicket(), 3000);
+                history.unshift({
+                    timestamp: new Date().toLocaleTimeString(),
+                    difficulty: currentDifficulty,
+                    category: category,
+                    score: reward
+                });
+                
+                const historyDiv = document.getElementById('historyList');
+                if (history.length === 0) {
+                    historyDiv.innerHTML = '<div style="color: #64748b; text-align: center; padding: 20px;">No submissions yet</div>';
+                } else {
+                    historyDiv.innerHTML = history.slice(0, 10).map(h => `
+                        <div class="history-item">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #10b981;">Score: ${h.score.toFixed(2)}</span>
+                                <span style="color: #64748b;">${h.timestamp}</span>
+                            </div>
+                            <div>${h.difficulty} | ${h.category}</div>
+                        </div>
+                    `).join('');
+                }
+                
+                setTimeout(() => loadTicket(), 2000);
             } catch (error) {
-                alert('Error submitting action. Check console for details.');
+                alert('Error submitting action. Check if Space is running.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '📤 Submit Action';
             }
         }
-        
-        // Load initial ticket
+
+        async function setPerfectTest() {
+            if (!currentTicket) await loadTicket();
+            document.getElementById('category').value = detectCategoryFromTicket(currentTicket.ticket_text);
+            document.getElementById('priority').value = detectPriorityFromTicket(currentTicket.ticket_text);
+            generateGoodResponse();
+            submitAction();
+        }
+
+        async function setWrongCategoryTest() {
+            if (!currentTicket) await loadTicket();
+            const correct = detectCategoryFromTicket(currentTicket.ticket_text);
+            const wrong = ['delivery', 'billing', 'technical', 'account', 'general'].find(c => c !== correct);
+            document.getElementById('category').value = wrong;
+            document.getElementById('priority').value = detectPriorityFromTicket(currentTicket.ticket_text);
+            generateGoodResponse();
+            submitAction();
+        }
+
+        async function setWrongPriorityTest() {
+            if (!currentTicket) await loadTicket();
+            document.getElementById('category').value = detectCategoryFromTicket(currentTicket.ticket_text);
+            document.getElementById('priority').value = 'low';
+            generateGoodResponse();
+            submitAction();
+        }
+
+        async function setBadResponseTest() {
+            if (!currentTicket) await loadTicket();
+            document.getElementById('category').value = detectCategoryFromTicket(currentTicket.ticket_text);
+            document.getElementById('priority').value = detectPriorityFromTicket(currentTicket.ticket_text);
+            document.getElementById('response').value = "No.";
+            updateQualityIndicators();
+            submitAction();
+        }
+
+        async function setEmptyTest() {
+            if (!currentTicket) await loadTicket();
+            document.getElementById('category').value = "";
+            document.getElementById('priority').value = "";
+            document.getElementById('response').value = "";
+            updateQualityIndicators();
+            submitAction();
+        }
+
+        // Event Listeners
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentDifficulty = btn.dataset.diff;
+                loadTicket();
+            });
+        });
+
+        document.getElementById('loadTicketBtn').addEventListener('click', loadTicket);
+        document.getElementById('submitBtn').addEventListener('click', submitAction);
+        document.getElementById('generateGoodBtn').addEventListener('click', generateGoodResponse);
+        document.getElementById('generateWrongBtn').addEventListener('click', generateWrongResponse);
+        document.getElementById('copyResponseBtn').addEventListener('click', copyResponse);
+        document.getElementById('clearResponseBtn').addEventListener('click', clearResponse);
+        document.getElementById('response').addEventListener('input', updateQualityIndicators);
+        document.getElementById('testPerfectBtn').addEventListener('click', setPerfectTest);
+        document.getElementById('testWrongCategoryBtn').addEventListener('click', setWrongCategoryTest);
+        document.getElementById('testWrongPriorityBtn').addEventListener('click', setWrongPriorityTest);
+        document.getElementById('testBadResponseBtn').addEventListener('click', setBadResponseTest);
+        document.getElementById('testEmptyBtn').addEventListener('click', setEmptyTest);
+
         loadTicket();
     </script>
 </body>
