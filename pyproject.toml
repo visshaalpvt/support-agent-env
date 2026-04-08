@@ -1,21 +1,18 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.backends.legacy:build"
-
 [project]
-name = "support-agent"
+name = "support-agent-env"
 version = "1.0.0"
-description = "Meta Hackathon Support Agent"
+description = "OpenEnv customer support environment"
+readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "aiohttp",
-    "openai",
-    "openenv-core>=0.2.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "pydantic>=2.4.0",
+    "openai>=1.0.0",
+    "aiohttp>=3.9.0",
+    "python-multipart>=0.0.6",
 ]
 
-[project.scripts]
-server = "inference:main"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["tasks*"]
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

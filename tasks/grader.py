@@ -3,20 +3,12 @@ import math
 # VERSION: 2026-04-08-FINAL-COMPLIANCE
 
 def clamp_score(x):
-    """Force score to be strictly between 0 and 1 (0.01 to 0.99)"""
-    try:
-        val = float(x)
-    except:
+    """Force score to be strictly between 0 and 1 for validator"""
+    if x <= 0.0:
         return 0.01
-    
-    if math.isnan(val) or math.isinf(val):
-        return 0.01
-
-    if val <= 0.0:
-        return 0.01
-    if val >= 1.0:
+    if x >= 1.0:
         return 0.99
-    return round(val, 3)
+    return round(x, 3)
 
 # Alias
 clip_score = clamp_score
