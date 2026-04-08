@@ -20,12 +20,13 @@ def clip_score(x):
 # ============================================
 # COMPLIANCE: Mandatory Env Vars (Bug #3)
 # ============================================
+# NO FALLBACKS allowed - must come from evaluator environment
 try:
     API_BASE_URL = os.environ["API_BASE_URL"]
-    HF_TOKEN     = os.environ["HF_TOKEN"]
+    API_KEY      = os.environ["API_KEY"]
 except KeyError as e:
     sys.stderr.write(f"FATAL: Missing mandatory environment variable: {e}\n")
-    # Emit a safety [END] for the evaluator's ingestion
+    # Emit a failsafe [END] line so the validator doesn't hang
     print(f"[END] task=init score=0.011 steps=0", flush=True)
     sys.exit(1)
 
@@ -38,7 +39,7 @@ SPACE_URL  = os.getenv("SPACE_URL", "https://visshaalpvt-support-agent-env.hf.sp
 client = None
 try:
     from openai import AsyncOpenAI
-    client = AsyncOpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
+    client = AsyncOpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 except ImportError:
     sys.stderr.write("FATAL: openai package not installed.\n")
     print(f"[END] task=init score=0.011 steps=0", flush=True)
@@ -78,7 +79,7 @@ async def get_action_llm(messages, max_tokens=10):
         response = await client.chat.completions.create(
             model=MODEL_NAME,
             messages=messages,
-            temperature=0.011, # Non-zero literal
+            temperature=0.011,
             max_tokens=max_tokens
         )
         if response.choices and response.choices[0].message and response.choices[0].message.content:
@@ -102,13 +103,13 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
     print(f"[START] task={task_name} env=SupportAgentEnv model={MODEL_NAME}", flush=True)
 
     try:
-        # RESET
+        # ── RESET ──────────────────────────────────────────────
         async with session.post(f"{SPACE_URL}/reset", json={"task_difficulty": difficulty}) as resp:
             resp.raise_for_status()
             ticket = await resp.json()
             ticket_text = ticket.get("ticket_text", "")
 
-        # LLM Logic
+        # ── LLM LOGIC ──────────────────────────────────────────
         category = await get_action_llm([
             {"role": "system", "content": f"Classify into one: {', '.join(VALID_CATEGORIES)}. Output word only."},
             {"role": "user", "content": ticket_text}
@@ -135,7 +136,7 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
         elif difficulty == "medium": action_str = f"{category}|{priority}"
         else: action_str = f"{category}|{priority}|response"
 
-        # STEP
+        # ── SUBMIT STEP ────────────────────────────────────────
         async with session.post(f"{SPACE_URL}/step", json={
             "classification": category,
             "priority": priority,
@@ -160,10 +161,11 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
     except Exception as e:
         last_error = str(e)
         step_count = 1
-        print(f"[STEP] step={step_count} action=error reward=0.01 done=false error={last_error}", flush=True)
+        print(f"[STEP] step={step_count} action=error reward=0.011 done=false error={last_error}", flush=True)
     
     finally:
         # [END] log - COMPLIANCE: Bug #1 fix
+        # strictly follows [END] task=... score=... steps=...
         score = clip_score(reward)
         print(f"[END] task={task_name} score={score:.2f} steps={step_count}", flush=True)
     
@@ -172,12 +174,12 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
 async def main():
     try:
         async with aiohttp.ClientSession() as session:
-            # Phase 2 Evaluator expects sequential runs of easy -> medium -> hard
+            # Sequential task execution easy -> medium -> hard
             for diff in ["easy", "medium", "hard"]:
                 await run_task(session, diff)
     except Exception as e:
-        sys.stderr.write(f"FATAL: main execution failed: {e}\n")
-        # Safety log to ensure the validator sees a non-crashed END line
+        sys.stderr.write(f"FATAL: overall process failure: {e}\n")
+        # Safety output for the evaluator
         print(f"[END] task=support-agent-env score=0.011 steps=1", flush=True)
 
 if __name__ == "__main__":
