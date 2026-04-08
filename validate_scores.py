@@ -14,11 +14,11 @@ Usage:
 import sys
 import math
 
-# ─── Import graders ─────────────────────────────────────────────────────────
+# ─── import safe_grader ─────────────────────────────────────────────────────────
 try:
-    from graders import clip_score, grade_easy, grade_medium, grade_hard
+    from safe_grader import clip_score, grade_easy, grade_medium, grade_hard
 except ImportError as e:
-    print(f"FATAL: Could not import graders.py: {e}", file=sys.stderr)
+    print(f"FATAL: Could not import safe_grader.py: {e}", file=sys.stderr)
     sys.exit(1)
 
 PASS = "✅ PASS"
