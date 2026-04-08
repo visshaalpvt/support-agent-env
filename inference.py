@@ -11,16 +11,16 @@ import math
 # [COMPLIANCE] Unified [END] format (Rule #2)
 
 def clip_score(x):
-    """Clip score to strictly between 0 and 1 (0.01 to 0.99) """
+    """Clip score to strictly between 0 and 1 (0.05 to 0.95) """
     try:
         val = float(x)
     except Exception:
-        return 0.01
+        return 0.05
     if val <= 0.0:
-        return 0.01
+        return 0.05
     if val >= 1.0:
-        return 0.99
-    return max(0.01, min(0.99, val))
+        return 0.95
+    return max(0.05, min(0.95, val))
 
 # ============================================
 # COMPLIANCE: Mandatory Env Vars

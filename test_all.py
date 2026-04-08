@@ -2,7 +2,7 @@ import math
 from tasks.grader import clip_score, grade_easy, grade_medium, grade_hard, get_grader
 
 def check(label, val):
-    assert 0.01 <= val <= 0.99, f"OUT OF RANGE: {label} = {val}"
+    assert 0.05 <= val <= 0.95, f"OUT OF RANGE: {label} = {val}"
     print(f"  ✓ {label} = {val:.4f}")
 
 print("\n=== clip_score edge cases ===")

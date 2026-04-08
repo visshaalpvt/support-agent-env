@@ -58,6 +58,6 @@ observations:
     type: boolean
 
 rewards:
-  range: [0.01, 0.99]   # strictly open interval — no 0.0 or 1.0 ever returned
+  range: [0.05, 0.95]   # strictly open interval — no 0.0 or 1.0 ever returned
   partial_credit: true
   clip_fn: clip_score    # defined in tasks/grader.py, applied to every task score

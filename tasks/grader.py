@@ -3,8 +3,8 @@ import math
 
 # VERSION: 2026-04-08-DEFINITIVE-STRUCT-V5
 
-MIN_SCORE = 0.01
-MAX_SCORE = 0.99
+MIN_SCORE = 0.05
+MAX_SCORE = 0.95
 
 def clip_score(score):
     """Ensure score is strictly between 0 and 1 (never 0.0 or 1.0)."""
@@ -16,7 +16,7 @@ def clip_score(score):
     if math.isnan(val) or math.isinf(val):
         return MIN_SCORE
 
-    # Strictly clamp to (0.01, 0.99)
+    # Strictly clamp to (0.05, 0.95)
     return max(MIN_SCORE, min(MAX_SCORE, val))
 
 # Alias
