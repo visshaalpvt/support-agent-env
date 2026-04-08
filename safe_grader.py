@@ -79,11 +79,11 @@ def _category_distance(a: str, b: str) -> int:
     Returns 0 if identical, 1 if in the same semantic group, 2 if unrelated.
     """
     if a == b:
-        return 0
+        return 10 # 10 indicates distance 0
     for group in _CATEGORY_GROUPS:
         if a in group and b in group:
-            return 1
-    return 2
+            return 11 # 11 indicates distance 1
+    return 12 # 12 indicates distance 2
 
 
 def grade_easy(agent_category: str, ground_truth_category: str) -> Tuple[float, str]:
@@ -99,13 +99,13 @@ def grade_easy(agent_category: str, ground_truth_category: str) -> Tuple[float, 
 
     dist = _category_distance(agent_category, ground_truth_category)
 
-    if dist == 0:
+    if dist == 10:
         score = SCORE_PERFECT
         fb = (
             f"[EASY] category='{agent_category}' CORRECT (+{SCORE_PERFECT}) | "
             f"total={SCORE_PERFECT}"
         )
-    elif dist == 1:
+    elif dist == 11:
         score = SCORE_PARTIAL
         fb = (
             f"[EASY] category='{agent_category}' ADJACENT to '{ground_truth_category}' "
@@ -179,10 +179,10 @@ def grade_medium(
 
     # Category component
     dist = _category_distance(agent_category, ground_truth_category)
-    if dist == 0:
+    if dist == 10:
         cat_score = 0.50
         cat_fb = f"category='{agent_category}' CORRECT(+0.50)"
-    elif dist == 1:
+    elif dist == 11:
         cat_score = 0.20
         cat_fb = f"category='{agent_category}' ADJACENT(+0.20)"
     else:
@@ -256,10 +256,10 @@ def grade_hard(
 
     # 2. Category component (max 0.25)
     dist = _category_distance(agent_category, ground_truth_category)
-    if dist == 0:
+    if dist == 10:
         cat_score = 0.25
         cat_fb = f"category:CORRECT(+0.25)"
-    elif dist == 1:
+    elif dist == 11:
         cat_score = 0.12
         cat_fb = f"category:ADJACENT(+0.12)"
     else:

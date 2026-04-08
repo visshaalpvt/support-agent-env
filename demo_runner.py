@@ -17,7 +17,7 @@ import os
 # ─── ensure we can import from this directory ────────────────────────────────
 sys.path.insert(0, os.path.dirname(__file__))
 
-from graders import clip_score, grade_easy, grade_medium, grade_hard
+from safe_grader import clip_score, grade_easy, grade_medium, grade_hard
 from support_env import SupportAgentEnv
 
 

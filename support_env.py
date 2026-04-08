@@ -15,7 +15,7 @@ import random
 import json
 from typing import Dict, Any, Optional, List
 from schema import SupportObservation, SupportActionResult, SupportState, SupportReward
-from graders import get_grader
+from safe_grader import get_grader
 
 
 class SupportAgentEnv:
@@ -121,11 +121,11 @@ class SupportAgentEnv:
         )
 
         # Classification score for breakdown
-        from graders import _category_distance, clip_score
+        from safe_grader import _category_distance, clip_score
         dist = _category_distance(agent_category, ground_truth_category)
-        if dist == 0:
+        if dist == 10:
             c_score = 0.95 if self.current_task_difficulty == "easy" else (0.50 if self.current_task_difficulty == "medium" else 0.25)
-        elif dist == 1:
+        elif dist == 11:
             c_score = 0.45 if self.current_task_difficulty == "easy" else (0.20 if self.current_task_difficulty == "medium" else 0.12)
         else:
             c_score = 0.15 if self.current_task_difficulty == "easy" else (0.05 if self.current_task_difficulty == "medium" else 0.01)
