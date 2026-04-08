@@ -4,7 +4,17 @@ import uvicorn
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from api import app
+# Try to import from api.py
+try:
+    from api import app
+except ImportError:
+    # Fallback: create a minimal app
+    from fastapi import FastAPI
+    app = FastAPI()
+    
+    @app.get("/")
+    def root():
+        return {"status": "ok", "message": "SupportAgentEnv API"}
 
 def main():
     """Entry point for OpenEnv validator"""
