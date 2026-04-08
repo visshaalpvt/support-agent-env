@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 
 class SupportAction(BaseModel):
@@ -9,27 +9,20 @@ class SupportAction(BaseModel):
 class SupportObservation(BaseModel):
     ticket_id: str
     customer_message: str
-    category_options: List[str] = Field(default_factory=list)
-    priority_options: List[str] = Field(default_factory=list)
+    category_options: List[str]
+    priority_options: List[str]
     task_difficulty: str
     step_number: int
     done: bool
-    history: List[str] = Field(default_factory=list)
-    info: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    history: List[str]
+    info: Optional[Dict[str, Any]] = None
     feedback: str = ""
-
-class SupportReward(BaseModel):
-    total: float
-    breakdown: str
-    classification_score: Optional[float] = 0.01
-    priority_score: Optional[float] = 0.01
-    response_score: Optional[float] = 0.01
 
 class SupportActionResult(BaseModel):
     observation: SupportObservation
-    reward: SupportReward
+    reward: float
     done: bool
-    info: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    info: Optional[Dict[str, Any]] = None
 
 class SupportState(BaseModel):
     current_ticket_id: Optional[str] = None
@@ -37,5 +30,5 @@ class SupportState(BaseModel):
     task_difficulty: str = ""
     step_count: int = 0
     done: bool = False
-    last_reward: float = 0.01
-    history: List[str] = Field(default_factory=list)
+    last_reward: float = 0.0
+    history: List[str] = []
