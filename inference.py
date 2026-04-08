@@ -23,6 +23,20 @@ import json
 import os
 import sys
 
+# clip_score — shared Phase 2 safety net (also used in graders.py)
+try:
+    from graders import clip_score
+except ImportError:
+    import math
+    def clip_score(score, min_val=0.01, max_val=0.99):
+        try:
+            score = float(score)
+            if math.isnan(score) or math.isinf(score):
+                return min_val
+            return max(min_val, min(max_val, score))
+        except (TypeError, ValueError):
+            return min_val
+
 # ============================================================
 # ENVIRONMENT VARIABLES — read from environment with defaults
 # ============================================================
@@ -47,15 +61,10 @@ if not API_KEY:
     sys.exit(1)
 
 if not HF_TOKEN:
-    print("[END] success=false rewards=0.05", flush=True)
-    try:
-        raise ValueError(
-            "HF_TOKEN environment variable is required. "
-            "Set: export HF_TOKEN=<hugging-face-token>"
-        )
-    except ValueError as _e:
-        sys.stderr.write(f"FATAL: {_e}\n")
-    sys.exit(1)
+    # HF_TOKEN is not needed for the evaluation call itself — warn but continue
+    sys.stderr.write(
+        "WARNING: HF_TOKEN not set — operating without Hugging Face token.\n"
+    )
 
 # ============================================================
 # OPENAI CLIENT — MUST use API_KEY (not HF_TOKEN) so that
@@ -314,8 +323,8 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
             except (TypeError, ValueError):
                 raw_reward = 0.15
 
-        # Safety clamp — score must be strictly in (0, 1)
-        reward = max(0.05, min(0.95, raw_reward))
+        # clip_score — guaranteed strictly in (0.01, 0.99)
+        reward = clip_score(raw_reward)
 
         done        = bool(data.get("done", False))
         last_error  = data.get("last_action_error") or "null"
@@ -365,7 +374,7 @@ async def main() -> None:
         sys.stderr.write(f"[FATAL] main error: {e}\n")
         # If the outer loop crashes, emit a safety [END]
         mean_r = sum(all_rewards) / len(all_rewards) if all_rewards else 0.15
-        mean_r = max(0.05, min(0.95, mean_r))
+        mean_r = clip_score(mean_r)  # guaranteed in (0.01, 0.99)
         print(f"[END] success=false rewards={mean_r:.2f}", flush=True)
 
 
