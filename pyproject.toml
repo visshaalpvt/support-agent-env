@@ -1,8 +1,7 @@
 [project]
 name = "support-agent-env"
 version = "1.0.0"
-description = "OpenEnv customer support environment for AI agents"
-readme = "README.md"
+description = "OpenEnv customer support environment"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.104.0",
