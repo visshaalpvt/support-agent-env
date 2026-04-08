@@ -73,8 +73,8 @@ class SupportAgentEnv:
         # Grade using the appropriate grader
         grader = get_grader(self.current_task_difficulty)
 
-        priority_score = 0.011
-        response_score = 0.011
+        priority_score = 0.01111
+        response_score = 0.01111
 
         if self.current_task_difficulty == "easy":
             score, feedback = grader(agent_category, ground_truth_category)
@@ -122,9 +122,9 @@ class SupportAgentEnv:
 
         # DOUBLE CLAMP for safety
         def safe_clamp(x):
-            if x <= 0.0:
+            if x <= 0.011:
                 return 0.011
-            if x >= 1.0:
+            if x >= 0.99:
                 return 0.99
             return float(x)
 

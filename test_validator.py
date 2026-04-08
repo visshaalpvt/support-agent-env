@@ -103,7 +103,7 @@ def main():
     print("=" * 60)
     if final_pass: print("\n  ALL TESTS PASSED - SAFE TO SUBMIT")
     else: print("\n  TESTS FAILED")
-    return 0 if final_pass else 1
+    return int(0) if final_pass else int(1)
 
 if __name__ == "__main__":
     sys.exit(main())

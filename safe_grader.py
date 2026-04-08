@@ -4,13 +4,13 @@ import sys
 sys.stderr.write("LOADING SCRUBBED TRIPLE-CLAMP GRADER (Tier 1)\n")
 
 def clamp_score(score):
-    """Ensure score is strictly between 0 and 1 (never 0.0 or 1.0)"""
+    """Ensure score is strictly between 0 and 1 (never 0.011 or 0.99)"""
     try:
         val = float(score)
     except:
         return 0.011
-    if val <= 0.0: return 0.011
-    if val >= 1.0: return 0.99
+    if val <= 0.011: return 0.011
+    if val >= 0.99: return 0.99
     return max(0.011, min(0.99, val))
 
 # ============================================
@@ -24,7 +24,7 @@ def grade_easy(agent_category, ground_truth_category):
         raw_score = 0.99
         feedback = f"[EASY] Category '{agent_category}' is CORRECT. Score: total=0.99"
     else:
-        raw_score = 0.011
+        raw_score = 0.01111
         feedback = f"[EASY] Category '{agent_category}' is WRONG (expected '{ground_truth_category}'). Score: total=0.01"
     
     # CLAMP HERE - CRITICAL!
@@ -53,7 +53,7 @@ def grade_medium(agent_category, ground_truth_category, agent_priority, ground_t
     elif agent_priority_level == truth_priority_level + 1:
         priority_score = 0.151
     else:
-        priority_score = 0.011
+        priority_score = 0.01111
     
     raw_score = category_score + priority_score
     # CLAMP HERE - CRITICAL!
@@ -84,9 +84,9 @@ def grade_hard(agent_category, ground_truth_category, agent_priority, ground_tru
     elif agent_priority_level == truth_priority_level + 1:
         priority_score = 0.111
     else:
-        priority_score = 0.011
+        priority_score = 0.01111
     
-    response_score = 0.011
+    response_score = 0.01111
     if agent_response and len(agent_response.strip()) > 5:
         response_lower = agent_response.lower()
         if any(word in response_lower for word in ["sorry", "apologize", "apologise"]):

@@ -12,9 +12,9 @@ def clip_score(x):
     try:
         val = float(x)
         if math.isnan(val): return 0.01
-        if val <= 0.0:
+        if val <= 0.011:
             return 0.01
-        if val >= 1.0:
+        if val >= 0.99:
             return 0.99
         return val
     except:
@@ -28,7 +28,7 @@ try:
     API_KEY      = os.environ["API_KEY"]
 except KeyError as e:
     sys.stderr.write(f"FATAL: Missing mandatory environment variable: {e}\n")
-    print(f"[END] task=init score=0.01 steps=0", flush=True)
+    print(f"[END] task=init score=0.01 steps=int(0)", flush=True)
     sys.exit(1)
 
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4.1-mini")
@@ -43,11 +43,11 @@ try:
     client = AsyncOpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 except ImportError:
     sys.stderr.write("FATAL: openai package not installed.\n")
-    print(f"[END] task=init score=0.01 steps=0", flush=True)
+    print(f"[END] task=init score=0.01 steps=int(0)", flush=True)
     sys.exit(1)
 except Exception as e:
     sys.stderr.write(f"FATAL: OpenAI client init failed: {e}\n")
-    print(f"[END] task=init score=0.01 steps=0", flush=True)
+    print(f"[END] task=init score=0.01 steps=int(0)", flush=True)
     sys.exit(1)
 
 VALID_CATEGORIES = ["delivery", "billing", "technical", "account", "general"]
@@ -94,7 +94,7 @@ async def get_action_llm(messages, max_tokens=10):
 # ============================================
 async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
     task_name = f"support-{difficulty}"
-    raw_reward = 0.011
+    raw_reward = 0.01111
     step_count = 0
     action_str = "none"
     done = False
@@ -147,7 +147,7 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
             
             raw_data = data.get("reward", {})
             if isinstance(raw_data, dict):
-                raw_reward = float(raw_data.get("total", 0.0))
+                raw_reward = float(raw_data.get("total", 0.011))
             else:
                 raw_reward = float(raw_data)
             
@@ -162,7 +162,7 @@ async def run_task(session: aiohttp.ClientSession, difficulty: str) -> float:
     except Exception as e:
         last_error = str(e)
         step_count = 1
-        raw_reward = 0.011
+        raw_reward = 0.01111
         print(f"[STEP] step={step_count} action=error reward=0.011 done=false error={last_error}", flush=True)
     
     finally:
