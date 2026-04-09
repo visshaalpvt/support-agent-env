@@ -5,8 +5,13 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 import random
 import json
+import os
 
 from safe_grader import grade_easy, grade_medium, grade_hard, force_safe
+
+# Resolve paths relative to this file so it works inside Docker too
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
 app = FastAPI(title="SupportAgentEnv")
 
@@ -52,26 +57,23 @@ class StepRequest(BaseModel):
 
 @app.get("/")
 async def root():
-    return HTMLResponse(content="""
-    <html>
-        <head><title>SupportAgentEnv</title></head>
-        <body style="font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px;">
-            <h1>🤖 SupportAgentEnv</h1>
-            <p>API is running! Use <a href="/docs">/docs</a> for API documentation.</p>
-            <hr>
-            <h3>Quick Test:</h3>
-            <button onclick="test()">Load Random Ticket</button>
-            <pre id="result"></pre>
-            <script>
-                async function test() {
-                    const res = await fetch('/reset', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{"task_difficulty": "easy"}'});
-                    const data = await res.json();
-                    document.getElementById('result').innerHTML = JSON.stringify(data, null, 2);
-                }
-            </script>
-        </body>
-    </html>
-    """)
+    """Serve the frontend dashboard from templates/index.html"""
+    index_path = os.path.join(TEMPLATES_DIR, "index.html")
+    try:
+        with open(index_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        return HTMLResponse(content="""
+        <html>
+            <head><title>SupportAgentEnv</title></head>
+            <body style="font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px;">
+                <h1>🤖 SupportAgentEnv</h1>
+                <p>Dashboard file not found. Please check templates/index.html</p>
+                <p>API is running. Use <a href="/docs">/docs</a> for API documentation.</p>
+            </body>
+        </html>
+        """)
 
 
 @app.get("/health")

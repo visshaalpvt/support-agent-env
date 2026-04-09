@@ -14,6 +14,7 @@ COPY support_env.py .
 COPY tickets.json .
 COPY openenv.yaml .
 COPY inference.py .
+COPY templates ./templates
 
 # Create server directory for compatibility
 RUN mkdir -p server
