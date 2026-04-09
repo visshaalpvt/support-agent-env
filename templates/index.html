@@ -280,6 +280,36 @@
         .history-badge.medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
         .history-badge.hard { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
+        /* Marks Card */
+        .marks-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .mark-item {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .mark-value {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+            color: #667eea;
+        }
+
+        .mark-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         /* Loading Spinner */
         .spinner {
             display: inline-block;
@@ -407,8 +437,30 @@
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: Submission History -->
+            <!-- RIGHT COLUMN: Marks + Submission History -->
             <div>
+                <div class="card" style="border-top: 4px solid #10b981;">
+                    <h3 style="font-size: 16px;">🏆 YOUR MARKS</h3>
+                    <div class="marks-grid">
+                        <div class="mark-item">
+                            <span class="mark-value" id="statsTotal">0</span>
+                            <span class="mark-label">Tickets</span>
+                        </div>
+                        <div class="mark-item">
+                            <span class="mark-value" id="statsAvg">0%</span>
+                            <span class="mark-label">Avg. Accuracy</span>
+                        </div>
+                        <div class="mark-item">
+                            <span class="mark-value" id="statsHigh">0%</span>
+                            <span class="mark-label">High Score</span>
+                        </div>
+                        <div class="mark-item">
+                            <span class="mark-value" id="statsLevel">N/A</span>
+                            <span class="mark-label">Rank</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card">
                     <h3 style="font-size: 16px;">📜 Submission History</h3>
                     <div class="history-container">
@@ -579,6 +631,28 @@
             while (historyBody.children.length > 10) {
                 historyBody.removeChild(historyBody.lastChild);
             }
+
+            updateMarks();
+        }
+
+        // UPDATE MARKS
+        function updateMarks() {
+            if (history.length === 0) return;
+            
+            const total = history.length;
+            const avg = history.reduce((acc, curr) => acc + curr.score, 0) / total;
+            const high = Math.max(...history.map(h => h.score));
+            
+            document.getElementById('statsTotal').innerText = total;
+            document.getElementById('statsAvg').innerText = (avg * 100).toFixed(0) + '%';
+            document.getElementById('statsHigh').innerText = (high * 100).toFixed(0) + '%';
+            
+            let rank = "Beginner";
+            if (avg >= 0.85) rank = "Master";
+            else if (avg >= 0.7) rank = "Expert";
+            else if (avg >= 0.5) rank = "Pro";
+            
+            document.getElementById('statsLevel').innerText = rank;
         }
 
         async function loadTicket() {
@@ -636,6 +710,7 @@
                 updateScorePanel(reward, feedback);
                 
                 // Update history
+                history.push({ category, score: reward, diff: currentDifficulty, time: new Date().toLocaleTimeString() });
                 updateHistory(category, reward);
                 
                 // Show wrong/correct indicator on category
