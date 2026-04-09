@@ -23,6 +23,7 @@
             margin: 0 auto;
         }
 
+        /* Header */
         .header {
             text-align: center;
             padding: 25px;
@@ -50,6 +51,7 @@
             margin-top: 8px;
         }
 
+        /* Difficulty Buttons */
         .difficulty-container {
             display: flex;
             gap: 12px;
@@ -73,6 +75,7 @@
         .difficulty-btn.hard { background: #ef4444; color: white; }
         .difficulty-btn.active { transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.3); }
 
+        /* Cards */
         .card {
             background: rgba(30, 41, 59, 0.85);
             backdrop-filter: blur(10px);
@@ -110,6 +113,7 @@
             font-size: 12px;
         }
 
+        /* Form Elements */
         .form-group {
             margin-bottom: 15px;
         }
@@ -126,17 +130,29 @@
             width: 100%;
             padding: 10px;
             background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.2);
             border-radius: 8px;
             color: white;
             font-size: 14px;
+            transition: all 0.2s;
         }
 
-        textarea {
-            resize: vertical;
-            font-family: inherit;
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
+        /* Wrong Answer Indicator */
+        select.wrong, textarea.wrong {
+            border-color: #ef4444;
+            box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+        }
+
+        select.correct, textarea.correct {
+            border-color: #10b981;
+        }
+
+        /* Buttons */
         .btn {
             padding: 8px 16px;
             border: none;
@@ -169,32 +185,144 @@
             flex-wrap: wrap;
         }
 
+        /* Score Display */
         .score-card {
             text-align: center;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 12px;
+            padding: 20px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease;
         }
-        .score-value { font-size: 36px; font-weight: bold; }
+
+        .score-card.high {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .score-card.medium {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+        }
+
+        .score-card.low {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .score-percent {
+            font-size: 20px;
+            opacity: 0.8;
+        }
+
+        /* Feedback */
         .feedback {
-            margin-top: 10px;
-            padding: 10px;
+            margin-top: 15px;
+            padding: 12px;
             background: rgba(0,0,0,0.3);
             border-radius: 8px;
             font-family: monospace;
-            font-size: 11px;
+            font-size: 12px;
             text-align: left;
         }
 
-        .history-list {
-            max-height: 150px;
-            overflow-y: auto;
+        .feedback.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border-left: 3px solid #ef4444;
         }
-        .history-item {
-            padding: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+
+        .feedback.correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-left: 3px solid #10b981;
+        }
+
+        /* Quality Indicators */
+        .quality-indicators {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .indicator {
             font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
         }
+
+        .indicator.good {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .indicator.bad {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        /* History Table */
+        .history-table {
+            width: 100%;
+            font-size: 12px;
+        }
+
+        .history-table th {
+            text-align: left;
+            padding: 8px;
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .history-table td {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .history-score-high { color: #10b981; font-weight: bold; }
+        .history-score-medium { color: #f59e0b; font-weight: bold; }
+        .history-score-low { color: #ef4444; font-weight: bold; }
+
+        .history-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 10px;
+        }
+
+        .history-badge.easy { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .history-badge.medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .history-badge.hard { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
         .hidden-field { display: none; }
     </style>
@@ -260,27 +388,35 @@
                     <button id="copyResponseBtn" class="btn btn-secondary btn-sm">📋 Copy</button>
                     <button id="clearResponseBtn" class="btn btn-secondary btn-sm">🗑️ Clear</button>
                 </div>
+                <div class="quality-indicators" id="qualityIndicators"></div>
             </div>
 
             <button id="submitBtn" class="btn btn-primary">📤 Submit Action</button>
         </div>
 
-        <div class="card score-card" id="resultCard" style="display: none;">
+        <div class="score-card" id="resultCard" style="display: none;">
             <div class="score-value" id="scoreValue">0.00</div>
-            <div class="score-label">/ 1.00</div>
+            <div class="score-percent" id="scorePercent">0%</div>
             <div class="feedback" id="feedbackText"></div>
         </div>
 
         <div class="card">
             <h4 style="font-size: 14px;">📜 Submission History</h4>
             <div id="historyList" class="history-list">
-                <div style="color: #64748b; text-align: center; padding: 15px;">No submissions yet</div>
+                <table class="history-table" id="historyTable">
+                    <thead>
+                        <tr><th>Score</th><th>Difficulty</th><th>Category</th><th>Time</th></tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr><td colspan="4" style="text-align: center; color: #64748b;">No submissions yet</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        let API_URL = window.location.origin;
+        const API_URL = "";
         let currentDifficulty = "easy";
         let currentTicket = null;
         let history = [];
@@ -315,20 +451,46 @@
             const priorityGroup = document.getElementById('priorityGroup');
             const responseGroup = document.getElementById('responseGroup');
             const responseButtons = document.getElementById('responseButtons');
+            const qualityIndicators = document.getElementById('qualityIndicators');
 
             if (currentDifficulty === 'easy') {
                 if (priorityGroup) priorityGroup.style.display = 'none';
                 if (responseGroup) responseGroup.style.display = 'none';
                 if (responseButtons) responseButtons.style.display = 'none';
+                if (qualityIndicators) qualityIndicators.style.display = 'none';
             } else if (currentDifficulty === 'medium') {
                 if (priorityGroup) priorityGroup.style.display = 'block';
                 if (responseGroup) responseGroup.style.display = 'none';
                 if (responseButtons) responseButtons.style.display = 'none';
+                if (qualityIndicators) qualityIndicators.style.display = 'none';
             } else {
                 if (priorityGroup) priorityGroup.style.display = 'block';
                 if (responseGroup) responseGroup.style.display = 'block';
                 if (responseButtons) responseButtons.style.display = 'flex';
+                if (qualityIndicators) qualityIndicators.style.display = 'flex';
+                updateQualityIndicators();
             }
+        }
+
+        function updateQualityIndicators() {
+            const response = document.getElementById('response').value;
+            const indicators = document.getElementById('qualityIndicators');
+            
+            if (!response || response.length < 5) {
+                indicators.innerHTML = '<span class="indicator bad">⚠️ Response required</span>';
+                return;
+            }
+            
+            const lower = response.toLowerCase();
+            const hasEmpathy = lower.includes('sorry') || lower.includes('apologize');
+            const hasAction = lower.includes('check') || lower.includes('track') || lower.includes('help') || lower.includes('fix');
+            const goodLength = response.length > 20;
+            
+            indicators.innerHTML = `
+                <span class="indicator ${hasEmpathy ? 'good' : 'bad'}">${hasEmpathy ? '❤️ Has empathy ✅' : '❤️ No empathy ❌'}</span>
+                <span class="indicator ${goodLength ? 'good' : 'bad'}">${goodLength ? '📏 Good length ✅' : '📏 Too short ❌'}</span>
+                <span class="indicator ${hasAction ? 'good' : 'bad'}">${hasAction ? '⚡ Action words ✅' : '⚡ No action ❌'}</span>
+            `;
         }
 
         function updateAISuggestion() {
@@ -344,11 +506,13 @@
             if (!currentTicket) { alert('Load a ticket first!'); return; }
             const cat = detectCategoryFromTicket(currentTicket.ticket_text);
             document.getElementById('response').value = goodResponses[cat] || goodResponses['general'];
+            updateQualityIndicators();
         }
 
         function generateWrongResponse() {
             if (!currentTicket) { alert('Load a ticket first!'); return; }
             document.getElementById('response').value = wrongResponses[Math.floor(Math.random() * wrongResponses.length)];
+            updateQualityIndicators();
         }
 
         async function loadTicket() {
@@ -366,6 +530,11 @@
                 document.getElementById('response').value = '';
                 document.getElementById('resultCard').style.display = 'none';
                 updateAISuggestion();
+                updateQualityIndicators();
+                
+                // Remove wrong/correct classes
+                document.getElementById('category').classList.remove('wrong', 'correct');
+                if (document.getElementById('priority')) document.getElementById('priority').classList.remove('wrong', 'correct');
             } catch (error) {
                 document.getElementById('ticketText').innerHTML = 'Error loading ticket. Make sure Space is running.';
             }
@@ -379,8 +548,9 @@
             if (!category) { alert('Please select a category!'); return; }
             
             const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '⏳ Submitting...';
+            submitBtn.innerHTML = '<span class="spinner"></span> Processing...';
             
             try {
                 let payload = { classification: category, priority: "", response: "" };
@@ -391,6 +561,7 @@
                     payload.response = response;
                 }
                 
+                const startTime = Date.now();
                 const res = await fetch(`${API_URL}/step`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -400,10 +571,44 @@
                 const reward = data.reward?.total || 0;
                 const feedback = data.reward?.breakdown || '';
                 
-                document.getElementById('scoreValue').innerHTML = reward.toFixed(2);
-                document.getElementById('feedbackText').innerHTML = feedback;
-                document.getElementById('resultCard').style.display = 'block';
+                // Show result with animation
+                const resultCard = document.getElementById('resultCard');
+                const scoreValue = document.getElementById('scoreValue');
+                const scorePercent = document.getElementById('scorePercent');
+                const feedbackText = document.getElementById('feedbackText');
                 
+                scoreValue.innerHTML = reward.toFixed(2);
+                scorePercent.innerHTML = `${(reward * 100).toFixed(0)}%`;
+                feedbackText.innerHTML = feedback;
+                
+                // Color code based on score
+                resultCard.classList.remove('high', 'medium', 'low');
+                if (reward >= 0.7) {
+                    resultCard.classList.add('high');
+                } else if (reward >= 0.4) {
+                    resultCard.classList.add('medium');
+                } else {
+                    resultCard.classList.add('low');
+                }
+                
+                // Add wrong/correct indicators
+                const expectedCat = detectCategoryFromTicket(currentTicket.ticket_text);
+                const catSelect = document.getElementById('category');
+                if (category === expectedCat) {
+                    catSelect.classList.add('correct');
+                    catSelect.classList.remove('wrong');
+                } else {
+                    catSelect.classList.add('wrong');
+                    catSelect.classList.remove('correct');
+                }
+                
+                feedbackText.classList.add(reward >= 0.5 ? 'correct' : 'wrong');
+                
+                resultCard.style.display = 'block';
+                resultCard.style.animation = 'none';
+                setTimeout(() => { resultCard.style.animation = 'fadeIn 0.5s ease'; }, 10);
+                
+                // Add to history
                 history.unshift({
                     time: new Date().toLocaleTimeString(),
                     diff: currentDifficulty,
@@ -411,30 +616,49 @@
                     score: reward
                 });
                 
-                const historyDiv = document.getElementById('historyList');
-                if (history.length === 0) {
-                    historyDiv.innerHTML = '<div style="color:#64748b;text-align:center;padding:15px;">No submissions yet</div>';
-                } else {
-                    historyDiv.innerHTML = history.slice(0, 8).map(h => `
-                        <div class="history-item">
-                            <div style="display:flex;justify-content:space-between;">
-                                <span style="color:#10b981;">Score: ${h.score.toFixed(2)}</span>
-                                <span style="color:#64748b;">${h.time}</span>
-                            </div>
-                            <div>${h.diff} | ${h.cat}</div>
-                        </div>
-                    `).join('');
-                }
+                updateHistory();
                 
+                // Auto-load next ticket after 2 seconds
                 setTimeout(() => loadTicket(), 2000);
+                
             } catch (error) {
                 alert('Error submitting. Check if Space is running.');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '📤 Submit Action';
+                submitBtn.innerHTML = originalText;
             }
         }
 
+        function updateHistory() {
+            const tbody = document.getElementById('historyBody');
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">No submissions yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = history.slice(0, 10).map(h => {
+                let scoreClass = '';
+                if (h.score >= 0.7) scoreClass = 'history-score-high';
+                else if (h.score >= 0.4) scoreClass = 'history-score-medium';
+                else scoreClass = 'history-score-low';
+                
+                let diffClass = '';
+                if (h.diff === 'easy') diffClass = 'history-badge easy';
+                else if (h.diff === 'medium') diffClass = 'history-badge medium';
+                else diffClass = 'history-badge hard';
+                
+                return `
+                    <tr>
+                        <td class="${scoreClass}">${(h.score * 100).toFixed(0)}%</td>
+                        <td><span class="${diffClass}">${h.diff}</span></td>
+                        <td>${h.cat}</td>
+                        <td style="color:#64748b;">${h.time}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Event Listeners
         document.querySelectorAll('.difficulty-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
@@ -455,7 +679,12 @@
         });
         document.getElementById('clearResponseBtn').addEventListener('click', () => {
             document.getElementById('response').value = '';
+            updateQualityIndicators();
         });
+        document.getElementById('response').addEventListener('input', updateQualityIndicators);
+
+        // Set API_URL dynamically
+        const API_URL = window.location.origin;
         
         updateUIByDifficulty();
         loadTicket();
