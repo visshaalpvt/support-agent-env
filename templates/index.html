@@ -683,8 +683,7 @@
         });
         document.getElementById('response').addEventListener('input', updateQualityIndicators);
 
-        // Set API_URL dynamically
-        const API_URL = window.location.origin;
+        // Removed redeclaration of API_URL since it is already defined as an empty string at the top.
         
         updateUIByDifficulty();
         loadTicket();
