@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +27,7 @@
         .header {
             text-align: center;
             padding: 25px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.1);
             border-radius: 20px;
             margin-bottom: 25px;
             backdrop-filter: blur(10px);
@@ -71,25 +70,10 @@
             transition: all 0.3s;
         }
 
-        .difficulty-btn.easy {
-            background: #10b981;
-            color: white;
-        }
-
-        .difficulty-btn.medium {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .difficulty-btn.hard {
-            background: #ef4444;
-            color: white;
-        }
-
-        .difficulty-btn.active {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-        }
+        .difficulty-btn.easy { background: #10b981; color: white; }
+        .difficulty-btn.medium { background: #f59e0b; color: white; }
+        .difficulty-btn.hard { background: #ef4444; color: white; }
+        .difficulty-btn.active { transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.3); }
 
         /* Cards */
         .card {
@@ -98,7 +82,7 @@
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .ticket-card {
@@ -112,7 +96,7 @@
             color: #f1f5f9;
             margin: 12px 0;
             padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0,0,0,0.3);
             border-radius: 8px;
         }
 
@@ -142,33 +126,29 @@
             font-size: 13px;
         }
 
-        select,
-        textarea {
+        select, textarea {
             width: 100%;
             padding: 10px;
             background: rgba(15, 23, 42, 0.9);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255,255,255,0.2);
             border-radius: 8px;
             color: white;
             font-size: 14px;
             transition: all 0.2s;
         }
 
-        select:focus,
-        textarea:focus {
+        select:focus, textarea:focus {
             outline: none;
             border-color: #667eea;
         }
 
         /* Wrong Answer Indicator */
-        select.wrong,
-        textarea.wrong {
+        select.wrong, textarea.wrong {
             border-color: #ef4444;
             box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
         }
 
-        select.correct,
-        textarea.correct {
+        select.correct, textarea.correct {
             border-color: #10b981;
         }
 
@@ -189,40 +169,14 @@
             padding: 12px;
             font-size: 15px;
         }
+        .btn-primary:hover { background: #5a67d8; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .btn-primary:hover {
-            background: #5a67d8;
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: #64748b;
-            color: white;
-        }
-
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-warning {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 11px;
-        }
+        .btn-secondary { background: #64748b; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-sm { padding: 5px 10px; font-size: 11px; }
 
         .button-group {
             display: flex;
@@ -269,7 +223,7 @@
         .feedback {
             margin-top: 15px;
             padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0,0,0,0.3);
             border-radius: 8px;
             font-family: monospace;
             font-size: 12px;
@@ -315,7 +269,7 @@
             display: inline-block;
             width: 16px;
             height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: white;
             animation: spin 0.8s linear infinite;
@@ -323,35 +277,18 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.02);
-            }
-
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
 
         /* History Table */
@@ -364,28 +301,17 @@
             text-align: left;
             padding: 8px;
             color: #94a3b8;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .history-table td {
             padding: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        .history-score-high {
-            color: #10b981;
-            font-weight: bold;
-        }
-
-        .history-score-medium {
-            color: #f59e0b;
-            font-weight: bold;
-        }
-
-        .history-score-low {
-            color: #ef4444;
-            font-weight: bold;
-        }
+        .history-score-high { color: #10b981; font-weight: bold; }
+        .history-score-medium { color: #f59e0b; font-weight: bold; }
+        .history-score-low { color: #ef4444; font-weight: bold; }
 
         .history-badge {
             display: inline-block;
@@ -394,27 +320,24 @@
             font-size: 10px;
         }
 
-        .history-badge.easy {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
+        .history-badge.easy { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .history-badge.medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .history-badge.hard { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
-        .history-badge.medium {
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-        }
+        .hidden-field { display: none; }
 
-        .history-badge.hard {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-        }
-
-        .hidden-field {
-            display: none;
+        .thinking-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            animation: pulse 1s infinite;
+            font-weight: bold;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
-
 <body>
     <div class="container">
         <div class="header">
@@ -443,7 +366,7 @@
 
         <div class="card">
             <h3 style="font-size: 16px; margin-bottom: 15px;">✍️ AGENT ACTION</h3>
-
+            
             <div class="form-group">
                 <label>📂 Category *</label>
                 <select id="category">
@@ -493,17 +416,10 @@
             <div id="historyList" class="history-list">
                 <table class="history-table" id="historyTable">
                     <thead>
-                        <tr>
-                            <th>Score</th>
-                            <th>Difficulty</th>
-                            <th>Category</th>
-                            <th>Time</th>
-                        </tr>
+                        <tr><th>Score</th><th>Difficulty</th><th>Category</th><th>Time</th></tr>
                     </thead>
                     <tbody id="historyBody">
-                        <tr>
-                            <td colspan="4" style="text-align: center; color: #64748b;">No submissions yet</td>
-                        </tr>
+                        <tr><td colspan="4" style="text-align: center; color: #64748b;">No submissions yet</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -570,17 +486,17 @@
         function updateQualityIndicators() {
             const response = document.getElementById('response').value;
             const indicators = document.getElementById('qualityIndicators');
-
+            
             if (!response || response.length < 5) {
                 indicators.innerHTML = '<span class="indicator bad">⚠️ Response required</span>';
                 return;
             }
-
+            
             const lower = response.toLowerCase();
             const hasEmpathy = lower.includes('sorry') || lower.includes('apologize');
             const hasAction = lower.includes('check') || lower.includes('track') || lower.includes('help') || lower.includes('fix');
             const goodLength = response.length > 20;
-
+            
             indicators.innerHTML = `
                 <span class="indicator ${hasEmpathy ? 'good' : 'bad'}">${hasEmpathy ? '❤️ Has empathy ✅' : '❤️ No empathy ❌'}</span>
                 <span class="indicator ${goodLength ? 'good' : 'bad'}">${goodLength ? '📏 Good length ✅' : '📏 Too short ❌'}</span>
@@ -626,7 +542,7 @@
                 document.getElementById('resultCard').style.display = 'none';
                 updateAISuggestion();
                 updateQualityIndicators();
-
+                
                 // Remove wrong/correct classes
                 document.getElementById('category').classList.remove('wrong', 'correct');
                 if (document.getElementById('priority')) document.getElementById('priority').classList.remove('wrong', 'correct');
@@ -639,15 +555,30 @@
             const category = document.getElementById('category').value;
             const priority = document.getElementById('priority').value;
             const response = document.getElementById('response').value;
-
+            
             if (!category) { alert('Please select a category!'); return; }
-
+            
             const submitBtn = document.getElementById('submitBtn');
-            const originalText = submitBtn.innerHTML;
+            const resultCard = document.getElementById('resultCard');
+            
+            // Show loading state with spinner
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner"></span> Processing...';
-
+            submitBtn.innerHTML = '<span class="spinner"></span> Analyzing your response...';
+            submitBtn.style.opacity = '0.7';
+            
+            // Hide previous result
+            resultCard.style.display = 'none';
+            
+            // Show "thinking" message
+            const thinkingMsg = document.createElement('div');
+            thinkingMsg.id = 'thinkingMsg';
+            thinkingMsg.className = 'thinking-message';
+            thinkingMsg.innerHTML = '🤔 AI is evaluating your response...';
+            document.querySelector('.card').after(thinkingMsg);
+            
             try {
+                const startTime = Date.now();
+                
                 let payload = { classification: category, priority: "", response: "" };
                 if (currentDifficulty === 'medium' || currentDifficulty === 'hard') {
                     payload.priority = priority;
@@ -655,102 +586,119 @@
                 if (currentDifficulty === 'hard') {
                     payload.response = response;
                 }
-
-                const startTime = Date.now();
+                
                 const res = await fetch(`${API_URL}/step`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                
                 const data = await res.json();
                 const reward = data.reward?.total || 0;
                 const feedback = data.reward?.breakdown || '';
-
-                // Show result with animation
-                const resultCard = document.getElementById('resultCard');
-                const scoreValue = document.getElementById('scoreValue');
-                const scorePercent = document.getElementById('scorePercent');
-                const feedbackText = document.getElementById('feedbackText');
-
-                scoreValue.innerHTML = reward.toFixed(2);
-                scorePercent.innerHTML = `${(reward * 100).toFixed(0)}%`;
-                feedbackText.innerHTML = feedback;
-
-                // Color code based on score
-                resultCard.classList.remove('high', 'medium', 'low');
-                if (reward >= 0.7) {
-                    resultCard.classList.add('high');
-                } else if (reward >= 0.4) {
-                    resultCard.classList.add('medium');
-                } else {
-                    resultCard.classList.add('low');
+                
+                // Calculate elapsed time
+                const elapsedTime = Date.now() - startTime;
+                const minDisplayTime = 1500; // Show loading for at least 1.5 seconds
+                
+                // Ensure loading shows for minimum time
+                if (elapsedTime < minDisplayTime) {
+                    await new Promise(resolve => setTimeout(resolve, minDisplayTime - elapsedTime));
                 }
-
-                // Add wrong/correct indicators
-                const expectedCat = detectCategoryFromTicket(currentTicket.ticket_text);
-                const catSelect = document.getElementById('category');
-                if (category === expectedCat) {
-                    catSelect.classList.add('correct');
-                    catSelect.classList.remove('wrong');
-                } else {
-                    catSelect.classList.add('wrong');
-                    catSelect.classList.remove('correct');
-                }
-
-                feedbackText.classList.add(reward >= 0.5 ? 'correct' : 'wrong');
-
-                resultCard.style.display = 'block';
-                resultCard.style.animation = 'none';
-                setTimeout(() => { resultCard.style.animation = 'fadeIn 0.5s ease'; }, 10);
-
+                
+                // Remove thinking message
+                const thinkingEl = document.getElementById('thinkingMsg');
+                if (thinkingEl) thinkingEl.remove();
+                
+                // Display result with animation
+                displayResult(reward, feedback, category);
+                
                 // Add to history
-                history.unshift({
-                    time: new Date().toLocaleTimeString(),
-                    diff: currentDifficulty,
-                    cat: category,
-                    score: reward
-                });
-
-                updateHistory();
-
-                // Auto-load next ticket after 2 seconds
-                setTimeout(() => loadTicket(), 2000);
-
+                addToHistory(currentDifficulty, category, reward);
+                
+                // Auto-load next ticket after 3 seconds
+                setTimeout(() => loadTicket(), 3000);
+                
             } catch (error) {
+                const thinkingEl = document.getElementById('thinkingMsg');
+                if (thinkingEl) thinkingEl.remove();
                 alert('Error submitting. Check if Space is running.');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
+                submitBtn.innerHTML = '📤 Submit Action';
+                submitBtn.style.opacity = '1';
             }
         }
 
-        function updateHistory() {
-            const tbody = document.getElementById('historyBody');
-            if (history.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">No submissions yet</td></tr>';
-                return;
+        function displayResult(reward, feedback, category) {
+            const resultCard = document.getElementById('resultCard');
+            const scoreValue = document.getElementById('scoreValue');
+            const scorePercent = document.getElementById('scorePercent');
+            const feedbackText = document.getElementById('feedbackText');
+            
+            const percentage = (reward * 100).toFixed(0);
+            
+            // Animate score counting
+            let currentScore = 0;
+            const increment = reward / 20;
+            const interval = setInterval(() => {
+                currentScore += increment;
+                if (currentScore >= reward) {
+                    currentScore = reward;
+                    clearInterval(interval);
+                }
+                scoreValue.innerHTML = currentScore.toFixed(2);
+                scorePercent.innerHTML = `${Math.floor(currentScore * 100)}%`;
+            }, 30);
+            
+            feedbackText.innerHTML = feedback;
+            
+            // Color code based on score
+            resultCard.classList.remove('high', 'medium', 'low');
+            if (reward >= 0.7) {
+                resultCard.classList.add('high');
+                // Confetti effect for high scores
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                }
+            } else if (reward >= 0.4) {
+                resultCard.classList.add('medium');
+            } else {
+                resultCard.classList.add('low');
             }
+            
+            resultCard.style.display = 'block';
+            resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
 
-            tbody.innerHTML = history.slice(0, 10).map(h => {
-                let scoreClass = '';
-                if (h.score >= 0.7) scoreClass = 'history-score-high';
-                else if (h.score >= 0.4) scoreClass = 'history-score-medium';
-                else scoreClass = 'history-score-low';
-
-                let diffClass = '';
-                if (h.diff === 'easy') diffClass = 'history-badge easy';
-                else if (h.diff === 'medium') diffClass = 'history-badge medium';
-                else diffClass = 'history-badge hard';
-
-                return `
-                    <tr>
-                        <td class="${scoreClass}">${(h.score * 100).toFixed(0)}%</td>
-                        <td><span class="${diffClass}">${h.diff}</span></td>
-                        <td>${h.cat}</td>
-                        <td style="color:#64748b;">${h.time}</td>
-                    </tr>
-                `;
-            }).join('');
+        function addToHistory(difficulty, category, score) {
+            const percentage = (score * 100).toFixed(0);
+            const historyBody = document.getElementById('historyBody');
+            
+            // Clear "No submissions yet" row if this is the first submission
+            if (historyBody.children.length === 1 && historyBody.children[0].innerText.includes('No submissions')) {
+                historyBody.innerHTML = '';
+            }
+            
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td class="${score >= 0.7 ? 'history-score-high' : score >= 0.4 ? 'history-score-medium' : 'history-score-low'}">${percentage}%</td>
+                <td><span class="history-badge ${difficulty}">${difficulty}</span></td>
+                <td>${category}</td>
+                <td style="color:#64748b;">${new Date().toLocaleTimeString()}</td>
+            `;
+            
+            // Add to top
+            if (historyBody.firstChild) {
+                historyBody.insertBefore(newRow, historyBody.firstChild);
+            } else {
+                historyBody.appendChild(newRow);
+            }
+            
+            // Keep only last 10
+            while (historyBody.children.length > 10) {
+                historyBody.removeChild(historyBody.lastChild);
+            }
         }
 
         // Event Listeners
@@ -779,10 +727,9 @@
         document.getElementById('response').addEventListener('input', updateQualityIndicators);
 
         // Removed redeclaration of API_URL since it is already defined as an empty string at the top.
-
+        
         updateUIByDifficulty();
         loadTicket();
     </script>
 </body>
-
 </html>
