@@ -1,4 +1,46 @@
-{"tickets": [
-    {"id": "T001", "text": "My order has not arrived", "ground_truth_category": "delivery", "ground_truth_priority": "high", "keywords": ["order", "arrived"]},
-    {"id": "T002", "text": "I was charged twice", "ground_truth_category": "billing", "ground_truth_priority": "urgent", "keywords": ["charge", "refund"]}
-]}
+{
+  "tickets": [
+    {
+      "id": "T001",
+      "text": "My order #12345 has not arrived yet. It's been 10 days since I placed the order and tracking hasn't updated.",
+      "ground_truth_category": "delivery",
+      "ground_truth_priority": "high",
+      "keywords": ["order", "arrived", "tracking", "days"]
+    },
+    {
+      "id": "T002",
+      "text": "I was charged twice for the same subscription renewal. I need a refund for the duplicate charge immediately.",
+      "ground_truth_category": "billing",
+      "ground_truth_priority": "urgent",
+      "keywords": ["charged", "twice", "refund", "subscription"]
+    },
+    {
+      "id": "T003",
+      "text": "The app keeps crashing when I try to upload files. I've tried reinstalling but nothing works.",
+      "ground_truth_category": "technical",
+      "ground_truth_priority": "high",
+      "keywords": ["app", "crashing", "upload", "reinstalling"]
+    },
+    {
+      "id": "T004",
+      "text": "I can't log into my account. The password reset email never arrives. I've checked spam.",
+      "ground_truth_category": "account",
+      "ground_truth_priority": "medium",
+      "keywords": ["login", "password", "reset", "email"]
+    },
+    {
+      "id": "T005",
+      "text": "I'd like to know if you offer student discounts on your premium plan.",
+      "ground_truth_category": "general",
+      "ground_truth_priority": "low",
+      "keywords": ["student", "discount", "premium", "plan"]
+    },
+    {
+      "id": "T006",
+      "text": "I received the wrong item in my package. I ordered a blue shirt but got a red one.",
+      "ground_truth_category": "delivery",
+      "ground_truth_priority": "high",
+      "keywords": ["wrong", "item", "ordered", "received"]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 name: support-agent-env
-description: Customer support environment for AI agents
+description: Customer support ticket classification environment for AI agents
 version: "1.0.0"
 author: visshaalpvt
 
@@ -15,7 +15,7 @@ action_space:
     - technical
     - account
     - general
-  description: Classification category
+  description: Classification category for the support ticket
 
 endpoints:
   health: /health
@@ -25,19 +25,22 @@ endpoints:
 
 tasks:
   - id: easy
-    description: Classify the ticket category
+    description: Classify the ticket category only
     steps: 1
     ideal_action: delivery
+    grader: classification_accuracy
 
   - id: medium
-    description: Classify category and detect priority
+    description: Classify category and detect priority level
     steps: 1
-    ideal_action: delivery
+    ideal_action: billing
+    grader: classification_and_priority
 
   - id: hard
-    description: Classify, prioritize, and respond
+    description: Classify, prioritize, and write a customer response
     steps: 1
-    ideal_action: delivery
+    ideal_action: general
+    grader: full_response_quality
 
 scoring:
   reward_range: [0.01, 0.99]
